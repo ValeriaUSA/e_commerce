@@ -47,8 +47,9 @@ export const addProduct = async (req, res) => {
     const productDetails = req.body;
 
     if (!productDetails.title || !productDetails.author) {
-        return res.status(400).json[{ message: "The required fields: title and author" }]
+        return res.status(400).json({ message: "The required field: title or author is missing" })
     }
+
 
     try {
         const newProduct = await productRepository.save(productDetails)
@@ -65,9 +66,94 @@ export const addProduct = async (req, res) => {
 
 }
 
+
+
+// export const ProductController = {
+//   getFilteredProducts: async (req, res) => {
+//     try {
+//       // Read filters from POST body
+//       const { authors, categories, minPrice, maxPrice, page = 1, limit = 12 } = req.body;
+
+//       // Ensure arrays for repository
+//       const authorList = authors ? [].concat(authors) : [];
+//       const categoryList = categories ? [].concat(categories) : [];
+
+//       const offset = (page - 1) * limit;
+
+//       // Debugging logs
+//       console.log('=== For debugging ===');
+//       console.log('Authors:', authorList);
+//       console.log('Categories:', categoryList);
+//       console.log('Min Price:', minPrice);
+//       console.log('Max Price:', maxPrice);
+//       console.log('Page:', page);
+//       console.log('Limit:', limit);
+//       console.log('Offset:', offset);
+
+//       // Call repository function
+//       const products = await productRepository.filterProducts({
+//         authors: authorList,
+//         categories: categoryList,
+//         minPrice,
+//         maxPrice,
+//         limit,
+//         offset,
+//       });
+
+//       // Return result
+//       res.json(products);
+//     } catch (err) {
+//       console.error('Error in filterProducts:', err);
+//       res.status(500).json({ message: 'Server error' });
+//     }
+//   }
+// };
+
+
+export const getFilterProducts = async (req, res) => {
+  try {
+    const { authors, categories, minPrice, maxPrice, page = 1, limit = 12 } = req.body;
+
+    // to be sure to have an array
+    const authorList = authors ? [].concat(authors) : [];
+    const categoryList = categories ? [].concat(categories) : [];
+
+    const offset = (page - 1) * limit;
+
+    // Debugging logs
+    console.log("=== For debugging ===");
+    console.log("Authors:", authorList);
+    console.log("Categories:", categoryList);
+    console.log("Min Price:", minPrice);
+    console.log("Max Price:", maxPrice);
+    console.log("Page:", page);
+    console.log("Limit:", limit);
+    console.log("Offset:", offset);
+
+
+
+    const products = await productRepository.filterProducts({
+      authors: authorList,
+      categories: categoryList,
+      minPrice,
+      maxPrice,
+      limit,
+      offset,
+    });
+
+    res.json(products);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
 export default {
  getAllProducts,
  getProductById,
- addProduct
+ addProduct,
+ getFilterProducts
 
 };

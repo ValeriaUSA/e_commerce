@@ -12,6 +12,11 @@ import { v4 as uuidv4 } from 'uuid'; //to creat product Ids
 // 9	isbestseller	tinyint(1)						
 // 10	publisheddate	date				
 // 11	itemadded date
+// 12 quantity
+
+// Tab categories
+// 1 categoryName (varchar)
+// 2 category_id (PRI, int)
 
 
 // Add a NEW book to the catalogue
@@ -19,42 +24,50 @@ import { v4 as uuidv4 } from 'uuid'; //to creat product Ids
 
 
 const save = async (product) => {
-
-    const INSERT =  `INSERT INTO products (
-productId, title, author, imgurl, category_id, stars, reviews, price, isbestseller, publisheddate, itemadded)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  const INSERT = `
+    INSERT INTO products (
+      productId, title, author, imgurl, category_id, stars, reviews, price, isbestseller, publisheddate, itemadded
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  const productId = uuidv4(); //creat  unique 36-char id
-  const now = new Date(); // timestamp
+  const productId = uuidv4(); // Generate unique 36-char ID
+  const now = new Date(); // Current timestamp
+    // Default quantity to 0 if not provided
+  const quantity = product.quantity != null ? product.quantity : 0;
 
-try {
+  // Convert incoming publisheddate to MySQL DATE format (YYYY-MM-DD)
+  const publisheddate = product.publisheddate
+    ? new Date(product.publisheddate).toISOString().slice(0, 10)
+    : null;
+
+  try {
     const result = await connection.query(INSERT, [
+      productId,
+      product.title,
+      product.author,
+      product.imgurl || null,
+      product.category_id || null,
+      product.stars || null,
+      product.reviews || null,
+      product.price || null,
+      product.isbestseller || 0,
+      publisheddate,
+      now, // itemadded is TIMESTAMP, MySQL will handle full datetime
+      quantity
+    ]);
 
-        productId,
-        product.title,
-        product.author,
-        product.imgurl ||null,
-        product.category_id ||null,
-        product.stars||null,
-        product.reviews ||null,
-        product.price ||null,
-        product.isbestseller ||0,
-        product.publisheddate ||null,
-        now
-    ])
-
-    return {... product, productId:productId, itemadded:now}
-
-}
-catch(error){
-    console.log(error);
-    return null
-    
-
-}
-
-}
+    return {
+      ...product,
+      productId,
+      itemadded: now,
+      publisheddate,
+      quantity
+    };
+  } catch (error) {
+    console.error('Error saving product:', error);
+    return null;
+  }
+};
 
 //  **Get ALL books
 const findAll = async () => {
@@ -88,9 +101,113 @@ const findById = async (productId) => {
     }
 }
 
+
+
+// const filterProducts = async ({ authors, categories, minPrice, maxPrice, limit, offset }) => {
+
+//   let SELECT = `
+//     SELECT p.*, c.categoryName AS category_name
+//     FROM products p
+//     JOIN categories c ON p.category_id = c.category_id
+//     WHERE 1=1
+//   `;
+//   const params = [];
+
+  
+//   if (authors.length > 0) {
+//     SELECT += ` AND p.author IN (${authors.map(() => "?").join(",")})`;
+//     params.push(...authors);
+//   }
+
+ 
+//   if (categories.length > 0) {
+//     SELECT += ` AND c.categoryName IN (${categories.map(() => "?").join(",")})`;
+//     params.push(...categories);
+//   }
+
+
+//   if (minPrice) {
+//     SELECT += " AND p.price >= ?";
+//     params.push(minPrice);
+//   }
+//   if (maxPrice) {
+//     SELECT += " AND p.price <= ?";
+//     params.push(maxPrice);
+//   }
+
+//   //LIMIT defines how many products to show on the page and OFFSET from what position to start from pagination
+//   SELECT += " LIMIT ? OFFSET ?";
+//   params.push(Number(limit), Number(offset)); 
+
+//   const result = await connection.query(SELECT, params);
+//  return result[0] // array of books
+// };
+
+
+
+
+const filterProducts = async ({ authors, categories, minPrice, maxPrice, limit, offset }) => {
+  const params = [];
+
+  let SELECT = `
+    SELECT p.*, c.categoryName AS category_name
+    FROM products p
+    JOIN categories c ON p.category_id = c.category_id
+    WHERE 1=1
+  `;
+
+  // Filter authors
+  if (authors.length > 0) {
+    SELECT += ` AND p.author IN (${authors.map(() => '?').join(',')})`;
+    params.push(...authors);
+  }
+
+  // Filter categories by mapping names to IDs first
+  if (categories.length > 0) {
+    // Map category names to IDs
+    const [catRows] = await connection.query(
+      `SELECT category_id FROM categories WHERE categoryName IN (?)`,
+      [categories]
+    );
+    const categoryIds = catRows.map(row => row.category_id);
+
+    if (categoryIds.length > 0) {
+      SELECT += ` AND p.category_id IN (${categoryIds.map(() => '?').join(',')})`;
+      params.push(...categoryIds);
+    } else {
+      // No matching categories → return empty
+      return [];
+    }
+  }
+
+  // Filter price
+  if (minPrice !== undefined && minPrice !== null) {
+    SELECT += " AND p.price >= ?";
+    params.push(minPrice);
+  }
+  if (maxPrice !== undefined && maxPrice !== null) {
+    SELECT += " AND p.price <= ?";
+    params.push(maxPrice);
+  }
+
+  // Pagination
+  SELECT += " LIMIT ? OFFSET ?";
+  params.push(Number(limit), Number(offset));
+
+  // Debugging
+  console.log("SQL:", SELECT);
+  console.log("Params:", params);
+
+  const result = await connection.query(SELECT, params);
+  return result[0];
+};
+
+
+
 export default {
     findAll,
     findById,
-    save
+    save,
+    filterProducts
 };
 
