@@ -11,7 +11,7 @@ const app = express()
 app.use(express.json())
 
 app.use(cors({
-    origin: 'http://localhost:5174', // React app URL
+    origin: 'http://localhost:5173', // React app URL
     methods: ['GET', 'POST', 'DELETE', 'PUT'],
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization']
 }))

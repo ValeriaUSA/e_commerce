@@ -112,13 +112,14 @@ export const addProduct = async (req, res) => {
 
 export const getFilterProducts = async (req, res) => {
   try {
-    const { authors, categories, minPrice, maxPrice, page = 1, limit = 12 } = req.body;
+    console.log("req.body received:", req.body);
+    const { authors, categories, minPrice, maxPrice,limit = 12, offset = 0  } = req.body;
 
     // to be sure to have an array
     const authorList = authors ? [].concat(authors) : [];
     const categoryList = categories ? [].concat(categories) : [];
 
-    const offset = (page - 1) * limit;
+   
 
     // Debugging logs
     console.log("=== For debugging ===");
@@ -126,7 +127,6 @@ export const getFilterProducts = async (req, res) => {
     console.log("Categories:", categoryList);
     console.log("Min Price:", minPrice);
     console.log("Max Price:", maxPrice);
-    console.log("Page:", page);
     console.log("Limit:", limit);
     console.log("Offset:", offset);
 
@@ -147,6 +147,7 @@ export const getFilterProducts = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 
