@@ -20,6 +20,27 @@ const findAll = async () => {
         return null
     }
 }
+
+
+// Find user by EMAIL for login and Local storage
+
+const findByEmail = async (email) => {
+
+    const SELECT = `SELECT * from users WHERE email= ?`
+
+    try {
+
+        const user = await connection.query(SELECT, [email]);
+        //debugging 
+        console.log(user[0][0]);
+        return user[0][0] // the row
+    } catch (error) {
+        console.log(error);
+        return null
+    }
+}
+
+
 const save = async (user) => {
 
     // Default role to "user" if not provided
@@ -93,4 +114,8 @@ const save = async (user) => {
 // };
 
 
-export default {save};
+export default {
+    save,
+    findByEmail
+
+};

@@ -42,6 +42,7 @@ END
 WHERE category_id IS NOT NULL;
 
 
+
 ALTER TABLE products
 DROP COLUMN category_name;
 
@@ -54,4 +55,4 @@ UPDATE products
 SET quantity = FLOOR(1 + (RAND() * 101))
 WHERE title IS NOT NULL;
 
-SELECT * 
+SELECT * from users;

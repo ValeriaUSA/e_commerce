@@ -1,27 +1,51 @@
+import { useContext } from "react";
 import { useState } from "react";
+import { GlobalContext } from "../contexts/GlobalContext";
 
 export default function Filter({ onFilterChange }) {
+    const { categories, loadingCategories } = useContext(GlobalContext)
+
+
     const [authors, setAuthors] = useState([]);
-    const [categories, setCategories] = useState([]);
+    const [selectedCategories, setSelectedCategories] = useState();
     const [minPrice, setMinPrice] = useState("");
     const [maxPrice, setMaxPrice] = useState("")
 
 
-const applyFilters = () => {
-    onFilterChange ({
-        authors,
-        categories,
-        minPrice: minPrice ||null,
-        maxPrice: maxPrice ||null
-    })
+    const applyFilters = () => {
+        onFilterChange({
+            authors,
+            categories: selectedCategories ? [selectedCategories] : [],
+            minPrice: minPrice || null,
+            maxPrice: maxPrice || null
+        })
 
-}
+    }
 
     return (
 
         <div className="filters border p-4 rounded-lg mb-6 bg-gray-50">
             <h2 className="text-lg font-bold mb-4">Find your matching book</h2>
 
+
+            {/* Filter category  */}
+            <div className="mb-4">
+                <label className="block text-sm font-medium">Genre</label>
+                <select
+                value ={selectedCategories}
+                onChange ={(e) => setSelectedCategories(e.target.value)}
+                disabled ={loadingCategories}
+                >
+<option value = "">Choose category</option>
+{categories.map(cat => (
+    <option  key = {cat.category_id}>
+    {cat.categoryName}
+    </option>
+
+))}
+                </select>
+                    
+            </div>
             {/* Filter author */}
             <div className="mb-4">
                 <label className="block text-sm font-medium">Author</label>
@@ -33,16 +57,7 @@ const applyFilters = () => {
                 />
             </div>
 
-            {/* Filter category */}
-            <div className="mb-4">
-                <label className="block text-sm font-medium">Genre</label>
-                <input
-                    type="text"
-                    placeholder="Genre"
-                    className="w-full border rounded p-2"
-                    onBlur={(e) => setCategories(e.target.value ? [e.target.value] : [])}
-                />
-            </div>
+
 
             {/* Price filtering */}
 

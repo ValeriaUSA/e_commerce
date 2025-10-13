@@ -6,6 +6,9 @@ const router = express.Router()
 // Get all books 
 router.get("/", ProductController.getAllProducts);
 
+//Get all categories
+router.get("/category", ProductController.getAllCategories)
+
 // Filter products with query params
 router.post("/filter", ProductController.getFilterProducts);
 

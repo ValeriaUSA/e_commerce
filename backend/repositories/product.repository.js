@@ -103,49 +103,6 @@ const findById = async (productId) => {
 
 
 
-// const filterProducts = async ({ authors, categories, minPrice, maxPrice, limit, offset }) => {
-
-//   let SELECT = `
-//     SELECT p.*, c.categoryName AS category_name
-//     FROM products p
-//     JOIN categories c ON p.category_id = c.category_id
-//     WHERE 1=1
-//   `;
-//   const params = [];
-
-  
-//   if (authors.length > 0) {
-//     SELECT += ` AND p.author IN (${authors.map(() => "?").join(",")})`;
-//     params.push(...authors);
-//   }
-
- 
-//   if (categories.length > 0) {
-//     SELECT += ` AND c.categoryName IN (${categories.map(() => "?").join(",")})`;
-//     params.push(...categories);
-//   }
-
-
-//   if (minPrice) {
-//     SELECT += " AND p.price >= ?";
-//     params.push(minPrice);
-//   }
-//   if (maxPrice) {
-//     SELECT += " AND p.price <= ?";
-//     params.push(maxPrice);
-//   }
-
-//   //LIMIT defines how many products to show on the page and OFFSET from what position to start from pagination
-//   SELECT += " LIMIT ? OFFSET ?";
-//   params.push(Number(limit), Number(offset)); 
-
-//   const result = await connection.query(SELECT, params);
-//  return result[0] // array of books
-// };
-
-
-
-
 const filterProducts = async ({ authors, categories, minPrice, maxPrice, limit, offset }) => {
   const params = [];
 
@@ -203,11 +160,19 @@ const filterProducts = async ({ authors, categories, minPrice, maxPrice, limit, 
 };
 
 
+const category = async () => {
+  let SELECT = `SELECT * FROM categories `
+
+  const result = await connection.query(SELECT)
+  return result[0];
+}
+
 
 export default {
     findAll,
     findById,
     save,
-    filterProducts
+    filterProducts,
+    category
 };
 

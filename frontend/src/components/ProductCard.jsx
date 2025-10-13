@@ -1,3 +1,5 @@
+import AddToCartButton from "./AddtoCartBtn";
+
 export default function ProductCard({ product }) {
   const price = product.price ? parseFloat(product.price) : null;
   const isBestseller = Boolean(product.isbestseller);
@@ -31,6 +33,7 @@ export default function ProductCard({ product }) {
           Published: {new Date(product.publisheddate).toLocaleDateString()}
         </p>
       )}
+      { <AddToCartButton product={product} /> }
     </div>
   );
 }

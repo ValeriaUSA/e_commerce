@@ -1,0 +1,108 @@
+/* ------------------------------------ */
+/* Masthead wrapper (hero image)        */
+/* ------------------------------------ */
+.masthead_navbar_wrapper {
+  background-image: url('../../images/backboardfinalv1.png'); /* path to hero image */
+  background-size: contain;       
+  background-repeat: no-repeat;   /* do not tile */
+  background-position: center;    /* center the image */
+  /* height: 10%;                   */
+  width: 100%; 
+  display: flex;                  /* flex to center navbar vertically */
+  align-items: center;
+  justify-content: center;
+}
+
+/* ------------------------------------ */
+/* Navbar styling                       */
+/* ------------------------------------ */
+.book-navbar {
+  background-color: rgba(21, 226, 134, 0.4); /* semi-transparent overlay */
+  color: white;                         /* text color */
+  position: relative;                    /* relative for overlay stacking */
+  z-index: 1;                            /* ensures navbar content above overlay */
+}
+
+/* Navbar container inside overlay */
+.book-navbar .container {
+  position: relative;
+  z-index: 2; /* make sure links/buttons are above overlay */
+}
+
+/* Navbar links and buttons */
+.book-navbar .nav-link,
+.book-navbar .btn {
+  color: rgb(37, 18, 206);
+  transition: color 0.3s;
+}
+
+.book-navbar .nav-link:hover,
+.book-navbar .btn:hover {
+  color: #ffd700 !important; /* example hover color */
+}
+
+/* Make dropdown full-width */
+.dropdown-mega {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  padding: 1rem 0;
+  background-color: rgba(255, 255, 255, 0.95); /* semi-transparent white */
+  display: none; /* hidden by default */
+}
+
+/* Show on hover (optional) */
+.nav-item.dropdown:hover .dropdown-mega {
+  display: block;
+}
+
+/* Dropdown items styling */
+.dropdown-mega .dropdown-item {
+  color: #2526ce;
+  padding: 0.25rem 1rem;
+}
+
+.dropdown-mega .dropdown-item:hover {
+  background-color: #f0f0f0;
+  color: #ffd700;
+}
+
+/* Ensure dropdown appears above hero */
+.dropdown-mega {
+  z-index: 2000;
+}
+
+/* Responsive spacing */
+.dropdown-mega .row {
+  margin: 0;
+}
+
+
+/* ------------------------------------ */
+/* Responsive adjustments               */
+/* ------------------------------------ */
+@media (max-width: 768px) {
+  .masthead_navbar_wrapper {
+    height: 150px; /* reduce height on smaller screens */
+  }
+
+  .book-navbar .navbar-brand img {
+    max-height: 100px; /* smaller logo on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .masthead_navbar_wrapper {
+    height: 120px; /* further reduce height */
+  }
+
+  .book-navbar .navbar-brand img {
+    max-height: 80px;
+  }
+
+  .book-navbar .btn-sm {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+}

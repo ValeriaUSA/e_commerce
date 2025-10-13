@@ -12,7 +12,7 @@ const userSchema = yup.object().shape({
   familyname: yup
     .string()
     .nullable()
-    .matches(/^[A-Z]{1}.{2,19}$/, "Last name must start with a capital letter (3–20 chars)")
+    .matches(/^[A-Z]{1}.{2,19}$/, "Last name must start with a capital letter (3-20 chars)")
     .notRequired(),
   email: yup
     .string()
@@ -21,10 +21,10 @@ const userSchema = yup.object().shape({
   password: yup
     .string()
     .required("Password is required")
-    .min(6, "At least 6 characters")
-    .matches(/[A-Z]/, "Must contain uppercase")
-    .matches(/[0-9]/, "Must contain number")
-    .matches(/[!@#$%^&*(),.?":{}|<>]/, "Must contain special character"),
+    .min(6, "Password must contain least 6 characters ")
+    .matches(/[A-Z]/, "Password must contain uppercase")
+    .matches(/[0-9]/, "Password must contain number")
+    .matches(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain special character"),
   gender: yup.string().nullable().notRequired(),
   role: yup.string().nullable().notRequired()
 });
@@ -32,6 +32,10 @@ const userSchema = yup.object().shape({
 // Register function
 export const register = async (req, res) => {
   try {
+    // Check if password confirmation corresponds
+    if (req.body.password !== req.body.password_confirmation) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
     // Validate input
     await userSchema.validate(req.body, { abortEarly: false });
 
@@ -74,7 +78,44 @@ export const register = async (req, res) => {
   }
 };
 
+//LOGIN and USER data collect
+
+export const login = async (req, res) => {
+
+  try {
+    const user = await userRepository.findByEmail(req.body.email)
+    //Case: User's email is not found in db
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        errors: ["The provided email does not exist"],
+      });
+    }
+
+    //Case: email is found-> check password match
+
+    const isMatch = await bcrypt.compare(req.body.password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Invalid credentials",
+        errors: ["Password is incorrect"]
+      })
+    }
+    return res.status(200).json({
+      message: "Login successful",
+      user: { id: user.id, name: user.name, email: user.email, role: user.role, familyname: user.familyname, gender: user.gender }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+
 export default {
-  register
+  register,
+  login
 
 };

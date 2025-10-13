@@ -18,6 +18,7 @@ app.use(cors({
 
 // app.use("/", login);  
 app.use("/", register);  
+app.use("/", login);  
 
 //product related routes
 app.use ("/products", productRouts)

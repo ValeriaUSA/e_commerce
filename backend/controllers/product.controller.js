@@ -40,6 +40,24 @@ export const getProductById = async (req, res) => {
     }
 }
 
+// API GET all categories for MENU 
+
+export const getAllCategories = async(req, res) => {
+
+    try {
+
+        const category = await productRepository.category();
+        if (!category) {
+            return res.status(400).json({message: "Categories were not found"})
+        }
+        res.json(category)
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Error from the server, error 500"})
+        
+    }
+}
+
 // POST API to add a new book
 
 export const addProduct = async (req, res) => {
@@ -155,6 +173,7 @@ export default {
  getAllProducts,
  getProductById,
  addProduct,
- getFilterProducts
+ getFilterProducts,
+ getAllCategories
 
 };
