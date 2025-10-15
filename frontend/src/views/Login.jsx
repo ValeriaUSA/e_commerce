@@ -27,7 +27,11 @@ export default function Login() {
       console.log("🟢 [Login] API response:", apiRes.data);
 
       const user = apiRes.data.user; // server should return full user object
-      console.log("🟢 [Login] user to context:", user);
+      // console.log("🟢 [Login] user to context:", user);
+      console.log("🛒 [Login CartId] user to context:", user.cartId);
+      console.log("🛒 [Login CartContent] user to context:", user.cartProducts);
+
+ 
 
       login(user); // ✅ update context and localStorage
 
@@ -36,7 +40,7 @@ export default function Login() {
       if (user.role === "ADMIN") navigate("/admin");
       else navigate("/");
     } catch (err) {
-      console.error("❌ [Login] Error:", err);
+      console.error(" [Login] Error:", err);
       if (err.response?.data?.errors) setErrors(err.response.data.errors);
       else if (err.response?.data?.message) setErrors([err.response.data.message]);
       else setErrors(["Server error"]);

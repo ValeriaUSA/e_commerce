@@ -55,4 +55,23 @@ UPDATE products
 SET quantity = FLOOR(1 + (RAND() * 101))
 WHERE title IS NOT NULL;
 
-SELECT * from users;
+-- ALTER THE 'carts' TABLE
+
+-- 1. Add the 'status' 
+ALTER TABLE carts
+ADD COLUMN status ENUM('Active', 'Completed', 'Abandoned') NOT NULL DEFAULT 'Active';
+
+-- 2. Add 'createdAt' column to record when the cart was created.
+
+ALTER TABLE carts
+ADD COLUMN createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+---
+
+-- 3. Add 'updatedAt' column to record the last modification time.
+-- The ON UPDATE CURRENT_TIMESTAMP ensures the timestamp is updated automatically on modification.
+ALTER TABLE carts
+ADD COLUMN updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+INSERT INTO product_carts (cartId, productId, qnty)
+VALUES (2, 'B000FC1K34', 7)

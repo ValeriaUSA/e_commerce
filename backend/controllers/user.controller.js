@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 import bcrypt from 'bcrypt';
 import userRepository from '../repositories/user.repository.js';
+import cartRepository from '../repositories/cart.repository.js';
 
 // Validation schema
 const userSchema = yup.object().shape({
@@ -56,6 +57,15 @@ export const register = async (req, res) => {
     const savedUser = await userRepository.save(userToSave);
     if (!savedUser) return res.status(500).json({ message: "Problem inserting user" });
 
+    //Creat Active cart for the new created user
+    const customerId = savedUser.customerId;
+    const newCartId = await cartRepository.createCart(customerId)
+    if (!newCartId) {
+      console.error(`User ${customerId} registed, but default cart was not created`);
+
+    }
+
+
     // Respond with saved user data
     return res.status(201).json({
       message: "User registered successfully",
@@ -65,7 +75,8 @@ export const register = async (req, res) => {
         familyname: savedUser.familyname,
         email: savedUser.email,
         role: savedUser.role,
-        gender: savedUser.gender
+        gender: savedUser.gender,
+        activeCartId: newCartId
       }
     });
 
@@ -79,38 +90,122 @@ export const register = async (req, res) => {
 };
 
 //LOGIN and USER data collect
-
 export const login = async (req, res) => {
+  try {
+    const user = await userRepository.findByEmail(req.body.email)
+    //Case: User's email is not found in db
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        errors: ["The provided email does not exist"],
+      });
+    }
 
-  try {
-    const user = await userRepository.findByEmail(req.body.email)
-    //Case: User's email is not found in db
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-        errors: ["The provided email does not exist"],
-      });
+    //Case: email is found-> check password match
+
+    const isMatch = await bcrypt.compare(req.body.password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Invalid credentials",
+        errors: ["Password is incorrect"]
+      })
+    }
+    
+    // 🛑 FIX: Determine the correct customer ID property. 
+    // It is often named 'customerId' or 'id' depending on the repository result structure.
+    const customerId = user.id || user.customerId; 
+
+    if (!customerId) {
+        // Handle critical failure if the user object is malformed
+        console.error("User object missing required ID property:", user);
+        return res.status(500).json({ message: "Server error: User ID could not be determined for cart lookup." });
+    }
+    
+    // 🛑 DEBUGGING: Log the ID being used
+    console.log(`[LOGIN] Determined Customer ID: ${customerId}`); 
+
+    let activeCartContent;
+
+    try {
+        //Here fetch CART data
+        activeCartContent = await cartRepository.findOrCreatCart(customerId);
+        
+        // 🛑 DEBUGGING: Log the raw result from the repository
+        console.log("[LOGIN] Repository Cart Content:", activeCartContent);
+        
+    } catch (cartErr) {
+        // Log the specific cart error to the server console
+        console.error("[LOGIN] CRITICAL CART REPOSITORY ERROR:", cartErr);
+        // Throw it up to the main catch block to return 500
+        throw cartErr; 
     }
 
-    //Case: email is found-> check password match
 
-    const isMatch = await bcrypt.compare(req.body.password, user.password);
-
-    if (!isMatch) {
-      return res.status(401).json({
-        message: "Invalid credentials",
-        errors: ["Password is incorrect"]
-      })
-    }
-    return res.status(200).json({
-      message: "Login successful",
-      user: { id: user.id, name: user.name, email: user.email, role: user.role, familyname: user.familyname, gender: user.gender }
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
+    return res.status(200).json({
+      message: "Login successful",
+      user: {
+        id: customerId, // Use the determined ID for the response
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        familyname: user.familyname,
+        gender: user.gender,
+        cartId: activeCartContent.cartId,
+        cartProducts: activeCartContent.books,
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 }
+
+
+// export const login = async (req, res) => {
+
+//   try {
+//     const user = await userRepository.findByEmail(req.body.email)
+//     //Case: User's email is not found in db
+//     if (!user) {
+//       return res.status(404).json({
+//         message: "User not found",
+//         errors: ["The provided email does not exist"],
+//       });
+//     }
+
+//     //Case: email is found-> check password match
+
+//     const isMatch = await bcrypt.compare(req.body.password, user.password);
+
+//     if (!isMatch) {
+//       return res.status(401).json({
+//         message: "Invalid credentials",
+//         errors: ["Password is incorrect"]
+//       })
+//     }
+
+//     //Here fetch CART data
+//     const activeCartContent = await cartRepository.findOrCreatCart(user.id)
+
+//     return res.status(200).json({
+//       message: "Login successful",
+//       user: {
+//         id: user.id,
+//         name: user.name,
+//         email: user.email,
+//         role: user.role,
+//         familyname: user.familyname,
+//         gender: user.gender,
+//         cartId: activeCartContent.cartId,
+//         cartProducts: activeCartContent.books,
+//       }
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// }
 
 
 

@@ -3,6 +3,7 @@ import 'dotenv/config'
 import login from './routes/user.route.js'
 import register from './routes/user.route.js'
 import productRouts from './routes/product.rout.js'
+import cartRouts from './routes/cart.rout.js'
 import cors from 'cors'
 
 
@@ -22,6 +23,9 @@ app.use("/", login);
 
 //product related routes
 app.use ("/products", productRouts)
+
+//cart related routes
+app.use ("/cart", cartRouts)
 
 const PORT = process.env.PORT || 5555
 

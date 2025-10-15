@@ -11,7 +11,7 @@ export default function ProductCard({ product }) {
         alt={product.title}
         className="w-full h-48 object-cover mb-4 rounded"
       />
-
+<h2 className="text-lg font-bold mb-2">{product.productId}</h2>
       <h2 className="text-lg font-bold mb-2">{product.title}</h2>
       <p className="text-sm text-gray-600 mb-1">Author: {product.author}</p>
       <p className="text-sm text-gray-600 mb-1">Category: {product.category_name}</p>

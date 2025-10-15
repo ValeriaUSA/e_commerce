@@ -5,7 +5,7 @@ import logo from "../../images/logo.png";
 import "./menu.css";
 import CartWidget from "../CartWidget.jsx"
 
-export default function Menu() {
+export default function Menu({ toggleCart }) {
   const { user, logout, categories, loadingCategories } = useContext(GlobalContext);
 
 
@@ -97,9 +97,8 @@ export default function Menu() {
               </div>
             </li>
             <li className="nav-item me-3">
-              <NavLink className="nav-link" to="/cart">
-                <CartWidget />
-              </NavLink>
+
+              <CartWidget toggleCart={toggleCart} />
             </li>
 
 

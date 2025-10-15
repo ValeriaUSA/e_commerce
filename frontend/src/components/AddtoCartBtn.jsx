@@ -7,12 +7,18 @@ export default function AddToCartButton ({product}) {
     const {addProduct} = useCart();
 
     const handleAddToCart = () => {
-        addProduct(product,1 );
+        const productForCart = {
+            ...product,
+            id : product.productId, // different naming in API JSON file and at next steps
+        }
+        addProduct(productForCart, 1);
     }
-
+    
     return (
         <button onClick ={handleAddToCart}>
         Add to Cart
         </button>
     )
 }
+
+
