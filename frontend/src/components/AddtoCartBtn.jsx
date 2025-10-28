@@ -4,14 +4,14 @@ import { useCart } from "../contexts/CartContext";
 export default function AddToCartButton ({product}) {
  
     // Destructure the addProduct function from the custom hook
-    const {addProduct} = useCart();
+    const {addProductToCart} = useCart();
 
     const handleAddToCart = () => {
         const productForCart = {
             ...product,
             id : product.productId, // different naming in API JSON file and at next steps
         }
-        addProduct(productForCart, 1);
+        addProductToCart(productForCart, 1);
     }
     
     return (

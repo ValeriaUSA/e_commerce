@@ -110,7 +110,7 @@ const addProductToCart = async (userId, productId, qnty) => {
     //First, find Id or creat active cart for a user
 
     const activeCart = await findOrCreatCart(userId);
-    const cartId= activeCart.cartId;
+    const cartId = activeCart.cartId;
 
     const INSERT = `
 INSERT INTO product_carts (cartId, productId, qnty)
@@ -119,24 +119,95 @@ ON DUPLICATE KEY UPDATE
 qnty=qnty+VALUE(qnty) 
 `;
 
-try {
+    try {
 
-    const [result] = await connection.query(INSERT,[cartId, productId, qnty])
-if (result.affectedRows===0) {
-    throw new Error("Cart product update failed");
+        const [result] = await connection.query(INSERT, [cartId, productId, qnty])
+        if (result.affectedRows === 0) {
+            throw new Error("Cart product update failed");
+        }
+        // Now, refetch the updated cart to return to controller
+        return await findCartByUserId(userId)
+    } catch (error) {
+        console.error(`Error adding product ${productId} to the cart ${cartId}`, error);
+        throw error;
+    }
 }
-// Now, refetch the updated cart to return to controller
-return await findCartByUserId(userId)
-} catch (error) {
-    console.error(`Error adding product ${productId} to the cart ${cartId}`, error);
-    throw error;    
+
+
+// 5. Remove a book from a cart
+
+const removeProductFromCart = async (userId, productId) => {
+
+    // First, find the user's cart
+    const activeCart = await findCartByUserId(userId);
+
+    if (!activeCart) {
+        throw new Error("This user does not have any active cart");
+    }
+
+    const cartId = activeCart.cartId;
+
+    const DELETE = `
+    DELETE FROM product_carts
+    WHERE cartId = ? AND productId = ?
+  `;
+
+    try {
+        const [result] = await connection.query(DELETE, [cartId, productId]);
+
+        if (result.affectedRows === 0) {
+            console.warn(`No product ${productId} found in cart ${cartId}`);
+        }
+
+        return await findCartByUserId(userId); // return the updated cart
+    } catch (error) {
+        console.error(`Error removing ${productId} from cart ${cartId}`, error);
+        throw error;
+    }
+};
+
+const updateProductQuantity = async (userId, productId, quantity) => {
+
+    const activeCart = await findCartByUserId(userId);
+
+    if (!activeCart) {
+        throw new Error("This user does not have any active cart");
+    }
+
+    const cartId = activeCart.cartId;
+
+    //Get product stock
+
+    const [productRows] = await connection.query(
+        "SELECT quantity FROM products WHERE productId = ?",
+        [productId]
+    );
+
+    if (productRows.length === 0) throw new Error("This product is not found in products");
+    const availableQnty = productRows[0].quantity;
+
+    if (quantity > availableQnty) throw new Error(`Not enough books in stock! Available: ${availableQnty}`);
+    if (quantity <= 0) {
+        //Remove from cart
+        return await removeProductFromCart(userId, productId);
+    }
+const UPDATE = `
+    UPDATE product_carts
+    SET qnty = ?
+    WHERE cartId = ? AND productId = ?
+`;
+await connection.query(UPDATE, [quantity, cartId, productId])
+return await findCartByUserId(userId); //return updated cart
+
 }
-}
+  
 
 export default {
     createCart,
     findCartByUserId,
     findOrCreatCart,
     addProductToCart,
+    removeProductFromCart,
+    updateProductQuantity 
 
 }

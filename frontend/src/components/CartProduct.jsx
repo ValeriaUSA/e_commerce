@@ -1,60 +1,87 @@
-import { useCart } from "../contexts/CartContext"
+import { useCart } from "../contexts/CartContext";
 
-// Renders a single product item within the cart list.
-// Provides controls for qnty adjustment and removal.
+const CartProduct = ({ item: product }) => {
+ 
+    const { updateQntyInCart, removeProductFromCart } = useCart();
 
-const CartProduct = ({ item:product, removeProduct, updateQnty }) => {
+  // Handler for typing in the input field 
+  const handleQntyUpdate = (event) => {
+    let newQnty = parseInt(event.target.value, 10);
+    if (isNaN(newQnty) || newQnty < 0) newQnty = 0; // prevent negative or invalid
+    updateQntyInCart(product.productId, newQnty);
+  };
 
+  // Increment quantity
+  const incrementQnty = () => {
+    updateQntyInCart(product.productId, product.quantity + 1);
+  };
 
-    //Handler for qnty update via the input field:
-    const handleQntyUpdate = (event) => {
+  // Decrement quantity - remove if reches 0
+  const decrementQnty = () => {
+    if (product.quantity > 1) {
+      updateQntyInCart(product.productId  , product.quantity - 1);
+    }else {
+           removeProductFromCart(product.productId);
+    } 
+  };
 
-        //Get the input and convert to int and after update the qnty with context function
-        const newQnty = parseInt(event.target.value, 10);
-        updateQnty(product.id, newQnty);
-    };
+  // Remove product explicitly witt X button
+  const handleRemoveProduct = () => {
+    console.log("🐞[CartProduct] Removing product:", product);
+   removeProductFromCart(product.productId);
+  };
 
-    //Handler to remove a product from cart:
-    const handleRemoveProduct = (event) => {
-        removeProduct(product.id)
-    };
+  return (
+    <div className="cart-product">
+      {/* Book title */}
+      <span>{product.title}</span>
 
-    return (
+      {/* Price */}
+      <span>${Number(product.price).toFixed(2)}</span>
 
-        <div>
+      {/* Quantity controls */}
+     <div className="quantity-controls flex items-center gap-2 w-1/4 justify-center">
+        <button
+          onClick={decrementQnty}
+          aria-label="Decrease quantity"
+          disabled={product.quantity <= 0} // prevent going negative
+          className="px-2 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          -
+        </button>
 
-            {/* Book title */}
-            <span>{product.title}</span>
+        <input
+          type="number"
+          min="0"
+          value={product.quantity}
+          onChange={handleQntyUpdate}
+          className="w-12 text-center border rounded"
+        />
 
-            {/* Price */}
-            <span>{product.price}</span>
+        <button
+          onClick={incrementQnty}
+          aria-label="Increase quantity"
+          className="px-2 py-1 border rounded"
+        >
+          +
+        </button>
+      </div>
 
-            {/* Qnty control input */}
-            <input
-                type="number"
-                min="0" //no negative amnt
-                value={product.quantity}
-                onChange={handleQntyUpdate}
-            />
+      {/* Subtotal */}
+      <span className="w-1/6 text-right">
+        ${(Number(product.price) * product.quantity).toFixed(2)}
+      </span>
 
-            {/* Subtotal calc */}
-            <span>
-                ${(product.price * product.quantity).toFixed(2)}
-            </span>
+      {/* Remove button */}
+      <button
+        onClick={handleRemoveProduct}
+        aria-label="Remove from your Cart"
+        className="text-red-500 text-xl"
+      >
+        &times;
+      </button>
+    </div>
+  );
+};
 
-            {/* Remove button */}
-
-            <button
-                onClick={handleRemoveProduct}
-                aria-label="Remove from your Cart"
-            >
-                &times;
-            </button>
-
-        </div>
-
-    )
-
-}
-
-export default CartProduct
+export default CartProduct;

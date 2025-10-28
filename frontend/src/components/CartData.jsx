@@ -7,9 +7,6 @@ const CartData = () => {
 
     const {
         cartItems,
-        addProduct,
-        removeProduct,
-        updateQnty,
         clearCart,
         calcTotalPrice,
         calcTotalQnty
@@ -20,15 +17,12 @@ const totalQnty= calcTotalQnty();
 const totalPrice = calcTotalPrice();
 
 // Case: Cart is EMPTY
-
 if(cartItems.length ===0) {
-
     return (
         <div>
             <p> Your cart is empty </p>
         </div>
-    )
-}
+    )}
 
 // Case: Cart has books in it
 
@@ -47,7 +41,7 @@ return(   <div className="cart-content-full p-2">
             <div className="cart-items-list mb-3" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                 {cartItems.map(item => (
                     // 🛑 CartItem component handles quantity updates and removal
-                    <CartProduct key={item.id} item={item} />
+                    <CartProduct key={item.productId} item={item} />
                 ))}
             </div>
 

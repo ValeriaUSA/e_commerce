@@ -1,6 +1,6 @@
 import CartData from "./CartData.jsx"
 
-//This component accepts propsfor state mngmnt: the cart menu is open, yes:no?
+//This component accepts props for state mngmnt: the cart menu is open, yes:no?
 const CartOffcanvas = ({ isOpen, toggleOffcanvas }) => {
 
     return (
