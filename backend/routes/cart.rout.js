@@ -9,6 +9,9 @@ router.post("/add", CartController.addToCart);
 //remove a book
 router.post("/remove", CartController.removeFromCart)
 
+//clear up cart completely [not delete]
+router.post("/clear", CartController.clearCart)
+
 //update book quantity in cart
 router.post("/update", CartController.updateCartQuantity)
 

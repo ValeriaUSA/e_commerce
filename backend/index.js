@@ -4,6 +4,7 @@ import login from './routes/user.route.js'
 import register from './routes/user.route.js'
 import productRouts from './routes/product.rout.js'
 import cartRouts from './routes/cart.rout.js'
+import adminRouts from './routes/admin.rout.js'
 import cors from 'cors'
 
 
@@ -17,12 +18,20 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization']
 }))
 
+
+app.use((req, res, next) => {
+    console.log("[BACK] incoming request:", req.method, req.url);
+    next();
+});
+
+
 // app.use("/", login);  
 app.use("/", register);  
 app.use("/", login);  
 
-//product related routes
+
 app.use ("/products", productRouts)
+app.use("/admin", adminRouts)
 
 //cart related routes
 app.use ("/cart", cartRouts)

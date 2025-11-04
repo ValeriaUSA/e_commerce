@@ -3,19 +3,15 @@ import productRepository from "../repositories/product.repository.js";
 
 // API GET All books
 export const getAllProducts = async (req, res) => {
-
     try {
         const products = await productRepository.findAll();
-
         if (!products) {
             return res.status(400).json({ message: "No products found" });
         }
         res.json(products);
-
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: "Error from the server, error 500" })
-
     }
 }
 
@@ -24,11 +20,8 @@ export const getAllProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
     const { id } = req.params;
 
-
     try {
-
         const product = await productRepository.findById(id);
-
         if (!product) {
             return res.status(400).json({ message: "This product is not found" })
         }
@@ -36,25 +29,24 @@ export const getProductById = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: "Error from the server, error 500" })
-
     }
 }
 
 // API GET all categories for MENU 
 
-export const getAllCategories = async(req, res) => {
+export const getAllCategories = async (req, res) => {
 
     try {
 
         const category = await productRepository.category();
         if (!category) {
-            return res.status(400).json({message: "Categories were not found"})
+            return res.status(400).json({ message: "Categories were not found" })
         }
         res.json(category)
     } catch (error) {
         console.log(error);
-        res.status(500).json({message: "Error from the server, error 500"})
-        
+        res.status(500).json({ message: "Error from the server, error 500" })
+
     }
 }
 
@@ -129,51 +121,48 @@ export const addProduct = async (req, res) => {
 
 
 export const getFilterProducts = async (req, res) => {
-  try {
-    console.log("req.body received:", req.body);
-    const { authors, categories, minPrice, maxPrice,limit = 12, offset = 0  } = req.body;
+    try {
+        console.log("req.body received:", req.body);
+        const { authors, categories, minPrice, maxPrice, limit = 12, offset = 0 } = req.body;
 
-    // to be sure to have an array
-    const authorList = authors ? [].concat(authors) : [];
-    const categoryList = categories ? [].concat(categories) : [];
-
-   
-
-    // Debugging logs
-    console.log("=== For debugging ===");
-    console.log("Authors:", authorList);
-    console.log("Categories:", categoryList);
-    console.log("Min Price:", minPrice);
-    console.log("Max Price:", maxPrice);
-    console.log("Limit:", limit);
-    console.log("Offset:", offset);
+        // to be sure to have an array
+        const authorList = authors ? [].concat(authors) : [];
+        const categoryList = categories ? [].concat(categories) : [];
 
 
 
-    const products = await productRepository.filterProducts({
-      authors: authorList,
-      categories: categoryList,
-      minPrice,
-      maxPrice,
-      limit,
-      offset,
-    });
+        // Debugging logs
+        console.log("=== For debugging ===");
+        console.log("Authors:", authorList);
+        console.log("Categories:", categoryList);
+        console.log("Min Price:", minPrice);
+        console.log("Max Price:", maxPrice);
+        console.log("Limit:", limit);
+        console.log("Offset:", offset);
 
-    res.json(products);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
+        const products = await productRepository.filterProducts({
+            authors: authorList,
+            categories: categoryList,
+            minPrice,
+            maxPrice,
+            limit,
+            offset,
+        });
+
+        res.json(products);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    }
 };
-
-
 
 
 export default {
- getAllProducts,
- getProductById,
- addProduct,
- getFilterProducts,
- getAllCategories
-
+    getAllProducts,
+    getProductById,
+    addProduct,
+    getFilterProducts,
+    getAllCategories,
 };
+
+

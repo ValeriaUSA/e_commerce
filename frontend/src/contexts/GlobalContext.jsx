@@ -1,9 +1,17 @@
+// This context lets any component access:
+
+// *  Current logged-in user
+// *  Product categories
+// *  Login/logout functions
+
+
 import { createContext, useEffect, useState } from "react";
 import axios from "../../axios.config";
 
 export const GlobalContext = createContext();
 
 export default function GlobalProvider({ children }) {
+    
     const [user, setUser] = useState(null);
     const [categories, setCategories] = useState([]);
     const [loadingCategories, setLoadingCategories] = useState(true);

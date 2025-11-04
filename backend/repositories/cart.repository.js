@@ -191,16 +191,107 @@ const updateProductQuantity = async (userId, productId, quantity) => {
         //Remove from cart
         return await removeProductFromCart(userId, productId);
     }
-const UPDATE = `
+    const UPDATE = `
     UPDATE product_carts
     SET qnty = ?
     WHERE cartId = ? AND productId = ?
 `;
-await connection.query(UPDATE, [quantity, cartId, productId])
-return await findCartByUserId(userId); //return updated cart
+    await connection.query(UPDATE, [quantity, cartId, productId])
+    return await findCartByUserId(userId); //return updated cart
 
 }
-  
+
+const CartContentByUserId = async (userId) => {
+    const SELECT = `
+SELECT 
+  c.cartId,
+  pc.productId,
+  pc.qnty,
+  p.title,
+  p.price,
+  p.imgurl,
+  p.author,
+  p.category_id,
+  p.stars,
+  p.reviews,
+  p.isbestseller,
+  p.publisheddate,
+  p.itemadded,
+  p.quantity AS stock
+FROM carts c
+LEFT JOIN product_carts pc ON c.cartId = pc.cartId
+LEFT JOIN products p ON pc.productId = p.productId
+WHERE c.customerId = ? AND c.status = 'Active'
+ORDER BY c.updatedAt DESC, pc.productId ASC
+LIMIT 50;
+`;
+
+    try {
+        const [rows] = await connection.query(SELECT, [userId]);
+
+        if (rows.length === 0) return null;
+
+        const activeCartId = rows[0].cartId;
+
+        const cartContent = rows
+            .filter(row => row.productId !== null)
+            .map(row => ({
+                productId: row.productId,
+                quantity: row.qnty,
+                title: row.title,
+                price: row.price,
+                imgurl: row.imgurl,
+                author: row.author,
+                category_id: row.category_id,
+                stars: row.stars,
+                reviews: row.reviews,
+                isbestseller: row.isbestseller,
+                publisheddate: row.publisheddate,
+                itemadded: row.itemadded,
+                stock: row.stock,
+            }));
+
+        return {
+            cartId: activeCartId,
+            books: cartContent,
+        };
+    } catch (error) {
+        console.error('Error finding active cart for this user:', error);
+        throw error;
+    }
+};
+
+
+
+// 6. CLEAR UP the cart
+
+const clearUserCart = async (userId) => {
+
+    if (!userId) throw new Error("Missing userId to continue to clear up cart");
+
+    try {
+
+        const activeCart = await findCartByUserId(userId)
+        if (!activeCart) {
+            console.warn(`No active cart for user ${userId}`);
+            return null
+        }
+
+        const cartId = activeCart.cartId
+
+        const DELETE = `
+        DELETE FROM product_carts WHERE cartId= ?
+        `
+        await connection.query(DELETE, [cartId])
+        return true
+
+    } catch (error) {
+        console.error("[Repo] Error clearing user cart : ", error);
+        throw error
+    }
+};
+
+
 
 export default {
     createCart,
@@ -208,6 +299,7 @@ export default {
     findOrCreatCart,
     addProductToCart,
     removeProductFromCart,
-    updateProductQuantity 
-
+    updateProductQuantity,
+    CartContentByUserId,
+    clearUserCart
 }
