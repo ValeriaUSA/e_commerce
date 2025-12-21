@@ -113,9 +113,16 @@ const filterProducts = async ({ authors, categories, minPrice, maxPrice, limit, 
   `;
 
   // Filter authors
+  // if (authors.length > 0) {
+  //   SELECT += ` AND p.author IN (${authors.map(() => '?').join(',')})`;
+  //   params.push(...authors);
+  // }
+
+   // Filter authors using LIKE
   if (authors.length > 0) {
-    SELECT += ` AND p.author IN (${authors.map(() => '?').join(',')})`;
-    params.push(...authors);
+    const authorConditions = authors.map(() => `p.author LIKE ?`).join(' OR ');
+    SELECT += ` AND (${authorConditions})`;
+    params.push(...authors.map(a => `%${a}%`));
   }
 
   // Filter categories by mapping names to IDs first

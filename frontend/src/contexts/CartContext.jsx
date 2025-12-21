@@ -118,7 +118,8 @@ export const CartProvider = ({ children }) => {
             if (isLoggedIn && user?.id) {
                 try {
                     // gets user's cart info from backend
-                    const response = await axios.get(`/cart/${user.id}`);
+                    // const response = await axios.get(`/cart/${user.id}`);
+                    const response = await axios.get(`/cart/me`);
                     const backendCart = response.data.cart || { books: [] };
 
                     // ✅ Map over the books array, not the cart object itself
@@ -172,7 +173,7 @@ export const CartProvider = ({ children }) => {
         if (isLoggedIn) {
             try {
                 await axios.post("/cart/add", {
-                    userId: user.id,
+                    // userId: user.id,
                     productId: product.id,
                     qnty: quantity,
                 });
@@ -199,7 +200,7 @@ export const CartProvider = ({ children }) => {
             try {
                 await axios.post("/cart/remove", {
                     productId,
-                    userId: user.id
+                    // userId: user.id
                 });
                 //update local copy
                   writeLocal(USER_CART_KEY, readLocal(USER_CART_KEY).filter((it) => it.productId !== productId));
@@ -223,7 +224,7 @@ export const CartProvider = ({ children }) => {
 
             try {
                 await axios.post("/cart/update", {
-                    userId: user.id,
+                    // userId: user.id,
                     productId,
                     quantity
                 })

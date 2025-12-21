@@ -158,7 +158,8 @@ export default function Login() {
       // NORMALIZE THE ROLE HERE ALWAYS!
       const user = {
         ...apiRes.data.user,
-        role: apiRes.data.user.role.toUpperCase()
+        role: apiRes.data.user.role.toUpperCase(),
+        token: apiRes.data.token,
       };
 
       login(user);

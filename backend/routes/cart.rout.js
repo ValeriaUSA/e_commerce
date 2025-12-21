@@ -1,21 +1,22 @@
 import express from 'express'
 import CartController from '../controllers/cart.controller.js'
+import { authenticateJWT } from '../middleware/auth.js';
 
 const router = express.Router()
 
 // add a book /update qnty in Cart
-router.post("/add", CartController.addToCart);
+router.post("/add", authenticateJWT, CartController.addToCart);
 
 //remove a book
-router.post("/remove", CartController.removeFromCart)
+router.post("/remove", authenticateJWT, CartController.removeFromCart)
 
 //clear up cart completely [not delete]
-router.post("/clear", CartController.clearCart)
+router.post("/clear", authenticateJWT, CartController.clearCart)
 
 //update book quantity in cart
-router.post("/update", CartController.updateCartQuantity)
+router.post("/update", authenticateJWT, CartController.updateCartQuantity)
 
 //fetch user cart from backend
-router.get("/:userId", CartController.getCartByUserId)
+router.get("/me", authenticateJWT, CartController.getCartByUserEmail)
 
 export default router;

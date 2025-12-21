@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import * as yup from 'yup';
 import bcrypt from 'bcrypt';
 import userRepository from '../repositories/user.repository.js';
@@ -27,28 +28,29 @@ const userSchema = yup.object().shape({
     .matches(/[0-9]/, "Password must contain number")
     .matches(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain special character"),
   gender: yup.string().nullable().notRequired()
-  
+
 });
 
 // Register function
 export const register = async (req, res) => {
   try {
-  // Check if password confirmation corresponds
+    // Check if password confirmation corresponds
     if (req.body.password !== req.body.password_confirmation) {
-      return res.status(400).json({ 
-        message: "Passwords do not match" });
+      return res.status(400).json({
+        message: "Passwords do not match"
+      });
     }
     // Validate input
     await userSchema.validate(req.body, { abortEarly: false });
-  // Check if email already exists
-  const existingUser = await userRepository.findByEmail(req.body.email);
-  if (existingUser) {
-    return res.status(400).json({
-      message: "Registration failled",
-      errors: ["Email is already registed"]
-    });
-  }
-  // Hash password
+    // Check if email already exists
+    const existingUser = await userRepository.findByEmail(req.body.email);
+    if (existingUser) {
+      return res.status(400).json({
+        message: "Registration failled",
+        errors: ["Email is already registed"]
+      });
+    }
+    // Hash password
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     // Prepare user object for saving
@@ -99,75 +101,83 @@ export const register = async (req, res) => {
 
 //LOGIN and USER data collect
 export const login = async (req, res) => {
-  try {
-    const user = await userRepository.findByEmail(req.body.email)
-    //Case: User's email is not found in db
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-        errors: ["The provided email does not exist"],
-      });
-    }
+  try {
+    const user = await userRepository.findByEmail(req.body.email)
 
-    //Case: email is found-> check password match
+    //Case: User's email is not found in db
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        errors: ["The provided email does not exist"],
+      });
+    }
 
-    const isMatch = await bcrypt.compare(req.body.password, user.password);
+    //Case: email is found-> check password match
 
-    if (!isMatch) {
-      return res.status(401).json({
-        message: "Invalid credentials",
-        errors: ["Password is incorrect"]
-      })
-    }
-    
-    // 🛑 FIX: Determine the correct customer ID property. 
-    // It is often named 'customerId' or 'id' depending on the repository result structure.
-    const customerId = user.id || user.customerId; 
+    const isMatch = await bcrypt.compare(req.body.password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Invalid credentials",
+        errors: ["Password is incorrect"]
+      });
+    }
+
+    //Generate JWT token
+
+    const customerId = user.id || user.customerId;
 
     if (!customerId) {
-        // Handle critical failure if the user object is malformed
-        console.error("User object missing required ID property:", user);
-        return res.status(500).json({ message: "Server error: User ID could not be determined for cart lookup." });
+      // Handle critical failure if the user object is malformed
+      console.error("User object missing required ID property:", user);
+      return res.status(500).json({ message: "Server error: User ID could not be determined for cart lookup." });
     }
-    
+
+    const token = jwt.sign(
+      { email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
     // 🛑 DEBUGGING: Log the ID being used
-    console.log(`[LOGIN] Determined Customer ID: ${customerId}`); 
+    console.log(`[LOGIN] Determined Customer ID: ${customerId}`);
 
     let activeCartContent;
 
-    try {
-        //Here fetch CART data
-        activeCartContent = await cartRepository.findOrCreatCart(customerId);
-        
-        // 🛑 DEBUGGING: Log the raw result from the repository
-        console.log("[LOGIN] Repository Cart Content:", activeCartContent);
-        
+    try {
+      //Here fetch CART data
+      activeCartContent = await cartRepository.findOrCreatCart(customerId);
+
+      // 🛑 DEBUGGING: Log the raw result from the repository
+      console.log("[LOGIN] Repository Cart Content:", activeCartContent);
+
     } catch (cartErr) {
-        // Log the specific cart error to the server console
-        console.error("[LOGIN] CRITICAL CART REPOSITORY ERROR:", cartErr);
-        // Throw it up to the main catch block to return 500
-        throw cartErr; 
+      // Log the specific cart error to the server console
+      console.error("[LOGIN] CRITICAL CART REPOSITORY ERROR:", cartErr);
+      // Throw it up to the main catch block to return 500
+      throw cartErr;
     }
 
 
-    return res.status(200).json({
-      message: "Login successful",
-      user: {
-        id: customerId, // Use the determined ID for the response
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        familyname: user.familyname,
-        gender: user.gender,
-        cartId: activeCartContent.cartId,
-        cartProducts: activeCartContent.books,
-      }
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-}
+    return res.status(200).json({
+      message: "Login successful",
+      token,
+      user: {
+        id: customerId, // Use the determined ID for the response
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        familyname: user.familyname,
+        gender: user.gender,
+        cartId: activeCartContent.cartId,
+        cartProducts: activeCartContent.books,
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 
 // export const login = async (req, res) => {

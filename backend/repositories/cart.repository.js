@@ -292,6 +292,38 @@ const clearUserCart = async (userId) => {
 };
 
 
+export const CartContentByUserEmail = async (email) => {
+    const SELECT = `
+    SELECT 
+        c.cartId, 
+        pc.productId, 
+        pc.qnty, 
+        p.title, 
+        p.price, 
+        p.imgurl
+    FROM carts c
+    LEFT JOIN product_carts pc ON c.cartId = pc.cartId
+    LEFT JOIN users u ON c.customerId = u.customerId
+    LEFT JOIN products p ON pc.productId = p.productId
+    WHERE u.email = ? AND c.status = 'Active'
+    `;
+    const [rows] = await connection.query(SELECT, [email]);
+
+    if (rows.length === 0) return null;
+
+    const activeCartId = rows[0].cartId;
+    const cartContent = rows
+        .filter(row => row.productId !== null)
+        .map(row => ({
+            productId: row.productId,
+            quantity: row.qnty,
+            title: row.title,
+            price: row.price,
+            imgurl: row.imgurl,
+        }));
+
+    return { cartId: activeCartId, books: cartContent };
+};
 
 export default {
     createCart,
@@ -301,5 +333,6 @@ export default {
     removeProductFromCart,
     updateProductQuantity,
     CartContentByUserId,
+    CartContentByUserEmail,
     clearUserCart
 }
