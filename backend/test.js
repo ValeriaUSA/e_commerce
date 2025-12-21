@@ -467,3 +467,186 @@ export default function AdminBooks() {
         </div>
     );
 }
+
+const getUserDisplayName = () => {
+  if (!user) return null;
+
+  if (user.role?.toUpperCase() === "ADMIN") {
+  
+    return `ADMIN ${user.familyname ?? ""}`.trim();
+  }
+
+  // normal users
+  const { gender, familyname, name } = user;
+  if (familyname && gender) {
+    if (gender === "female") return `Madame ${familyname}`;
+    if (gender === "male") return `Mr ${familyname}`;
+  }
+  return name || "User";
+};
+
+
+then change inside JSX
+
+{user ? (
+  <>
+    <li className="nav-item">
+      <span className="nav-link disabled text-light fw-bold">👋 {getUserDisplayName()}</span>
+    </li>
+
+    {user.role?.toUpperCase() === "ADMIN" ? (
+      <>
+        <li className="nav-item">
+          <NavLink className="btn btn-outline-light btn-sm ms-lg-3" to="/">
+            Shop
+          </NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink className="btn btn-outline-light btn-sm ms-lg-2" to="/admin/books">
+            Books Board
+          </NavLink>
+        </li>
+      </>
+    ) : null }
+
+    <li className="nav-item">
+      <NavLink
+        className="btn btn-outline-light btn-sm ms-lg-2"
+        to="/"
+        onClick={handleLogout}
+      >
+        Logout
+      </NavLink>
+    </li>
+  </>
+) : (
+
+import { useContext, useState, useRef } from "react"; // Added useRef for author input
+import { GlobalContext } from "../contexts/GlobalContext";
+
+export default function Filter({ onFilterChange }) {
+    const { categories, loadingCategories } = useContext(GlobalContext);
+
+    // --- State Initialization ---
+    const [authors, setAuthors] = useState([]);
+    const [selectedCategories, setSelectedCategories] = useState(""); // Default to empty string for <option value="">
+    const [minPrice, setMinPrice] = useState("");
+    const [maxPrice, setMaxPrice] = useState("");
+    
+    // Ref to clear the author input field easily
+    const authorInputRef = useRef(null); 
+
+    // --- Filter Logic ---
+    const applyFilters = () => {
+        onFilterChange({
+            authors,
+            categories: selectedCategories ? [selectedCategories] : [],
+            minPrice: minPrice || null,
+            maxPrice: maxPrice || null
+        });
+    };
+
+    // --- New Reset Logic ---
+    const resetFilters = () => {
+        // 1. Reset all local state variables to their initial values
+        setAuthors([]);
+        setSelectedCategories("");
+        setMinPrice("");
+        setMaxPrice("");
+
+        // 2. Explicitly clear the author input field using the ref
+        if (authorInputRef.current) {
+            authorInputRef.current.value = "";
+        }
+
+        // 3. Trigger the parent component's onFilterChange with empty values
+        onFilterChange({
+            authors: [],
+            categories: [],
+            minPrice: null,
+            maxPrice: null
+        });
+    };
+
+    // --- JSX Render ---
+    return (
+        // Replaced Tailwind with the custom Bootstrap structure
+        <div className="book-filter-sidebar card shadow-sm mb-4">
+            <div className="card-body">
+                <h2 className="literary-heading h5 mb-4">Find your matching book</h2>
+
+                {/* Filter category (Genre) */}
+                <div className="mb-3">
+                    <label className="form-label small fw-bold">Genre</label>
+                    <select
+                        className="form-select form-select-sm"
+                        value={selectedCategories}
+                        onChange={(e) => setSelectedCategories(e.target.value)}
+                        disabled={loadingCategories}
+                    >
+                        <option value="">All Categories</option>
+                        {categories.map(cat => (
+                            // IMPORTANT: Added value prop to option
+                            <option key={cat.category_id} value={cat.categoryName}> 
+                                {cat.categoryName}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Filter author */}
+                <div className="mb-3">
+                    <label className="form-label small fw-bold">Author</label>
+                    <input
+                        type="text"
+                        placeholder="Author name"
+                        className="form-control form-control-sm"
+                        // Added ref here
+                        ref={authorInputRef} 
+                        // Simplified onBlur to check for presence before setting state
+                        onBlur={(e) => setAuthors(e.target.value.trim() ? [e.target.value.trim()] : [])}
+                    />
+                </div>
+
+                {/* Price filtering */}
+                <div className="row">
+                    <div className="col-6 mb-3">
+                        <label className="form-label small fw-bold">Min Price</label>
+                        <input
+                            type="number"
+                            placeholder="Min"
+                            value={minPrice}
+                            onChange={(e) => setMinPrice(e.target.value)}
+                            className="form-control form-control-sm"
+                        />
+                    </div>
+                    <div className="col-6 mb-3">
+                        <label className="form-label small fw-bold">Max Price</label>
+                        <input
+                            type="number"
+                            placeholder="Max"
+                            value={maxPrice}
+                            onChange={(e) => setMaxPrice(e.target.value)}
+                            className="form-control form-control-sm"
+                        />
+                    </div>
+                </div>
+                
+  {/* Action button */}
+<div className="d-flex justify-content-between pt-2">
+    <button
+        onClick={applyFilters}
+        // 👇 Removed flex-grow-1 and added flex-fill
+        className="btn btn-sm book-btn-primary flex-fill me-2"
+    >
+        Apply Filter
+    </button>
+
+    <button
+        onClick={resetFilters}
+        // 👇 Added flex-fill
+        className="btn btn-sm btn-outline-secondary flex-fill"
+    >
+        Reset Filters
+    </button>
+</div>

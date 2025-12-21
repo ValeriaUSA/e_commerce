@@ -1,12 +1,272 @@
+/*
+|--------------------------------------------------------------------------
+| COLOR PALETTE & TYPOGRAPHY (GLOBAL THEME)
+|--------------------------------------------------------------------------
+*/
+:root {
+  --color-primary: #284B3B; /* Forest Green (Book Spine/Primary) */
+  --color-secondary: #C89B37; /* Muted Gold (Accent/Hover) */
+  --color-background-paper: #FEFEFC; /* Off-white / Paper Background */
+  --color-text-dark: #333333;
+}
+
+.literary-heading {
+  /* Use the dark green for headings */
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+/* --- Custom Primary Button (Used for Add to Cart) --- */
+.book-btn-primary {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-background-paper) !important;
+  transition: background-color 0.2s;
+}
+
+.book-btn-primary:hover {
+  background-color: #38674D !important; /* Slightly lighter green on hover */
+  border-color: #38674D !important;
+}
+
+/*
+|--------------------------------------------------------------------------
+| MENU & MASTHEAD STYLING (menu.css integration)
+|--------------------------------------------------------------------------
+*/
+.masthead_navbar_wrapper {
+  background-image: url('../../images/backboard5.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Navbar Base */
+.book-navbar {
+  /* Primary Color- Deep Tel/Forest Green */
+  background-color: rgba(40, 75, 59, 0.85); /* #284B3B with 85% opacity */
+  color: white;
+  position: relative;
+  z-index: 1020;
+}
+
+/* Navbar Links and Buttons */
+.book-navbar .nav-link,
+.book-navbar .btn {
+  color: #F9F7F5; /* Off-white text */
+  transition: color 0.3s, background-color 0.3s, border-color 0.3s;
+}
+
+/* Brand/Logo */
+.book-navbar .navbar-brand span {
+  font-weight: 600;
+  color: var(--color-secondary); /* Muted Gold */
+}
+
+/* Hover/Active states */
+.book-navbar .nav-link:hover,
+.book-navbar .nav-link.active,
+.book-navbar .btn-outline-light:hover {
+  color: var(--color-secondary) !important; /* Muted Gold for hover */
+}
+
+/* Login/Logout/Cart Button Styling (Outline Light inside dark navbar) */
+.book-navbar .btn-outline-light {
+  border-color: #F9F7F5;
+  color: #F9F7F5;
+}
+
+/* CRITICAL FIX: Ensure hover has dark text on light gold background */
+.book-navbar .btn-outline-light:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-text-dark) !important;
+  border-color: var(--color-secondary);
+}
+
+/* Disabled/Greeting Text */
+.book-navbar .nav-link.disabled.text-light.fw-bold {
+  color: #F9F7F5 !important;
+}
+
+/* Responsive Toggler */
+.navbar-toggler {
+  border-color: #F9F7F5;
+}
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23f9f7f5' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e")
+}
+
+/* Dropdown Mega Menu Styling */
+.dropdown-mega {
+  background-color: var(--color-background-paper);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  z-index: 1030;
+}
+
+.dropdown-mega .dropdown-item {
+  color: var(--color-text-dark);
+}
+
+.dropdown-mega .dropdown-item:hover {
+  background-color: #eee;
+  color: var(--color-primary); /* Primary color on hover */
+}
 
 
-/* #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-} */
+/*
+|--------------------------------------------------------------------------
+| PRODUCT CARD UNIFORMITY FIXES (ProductCard.jsx)
+|--------------------------------------------------------------------------
+*/
 
+/* 1. Base Card Styling & Hover Effect */
+.product-card-custom {
+  transition: transform 0.3s, box-shadow 0.3s;
+  border: 1px solid #e0e0e0;
+  background-color: var(--color-background-paper);
+  display: flex;
+  flex-direction: column; /* CRITICAL for content alignment */
+}
+
+.product-card-custom:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+}
+
+/* 2. Fixed Image Container (CRITICAL: Defines the 3:4 book aspect ratio) */
+.product-image-container {
+  position: relative;
+  width: 100%;
+  /* Creates a 3:4 aspect ratio (Height is 133.33% of the container's width) */
+  padding-bottom: 133.33%; 
+  overflow: hidden;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+  background-color: #f0f0f0;
+  display: flex; 
+  justify-content: center;
+  align-items: center;
+}
+
+/* 3. Image Fit Strategy (Ensures full image is visible, preserving ratio) */
+.book-cover-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* CRITICAL: Scales the image down to fit completely within the 3:4 container */
+  object-fit: contain; 
+  transition: transform 0.3s;
+}
+
+.product-card-custom:hover .book-cover-img {
+  transform: scale(1.05);
+}
+
+/* Ensure the card body correctly pushes content to the bottom */
+.product-card-custom .card-body {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.product-card-custom .card-body .mt-auto {
+    margin-top: auto !important; /* Forces the bottom elements to the base */
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| RESPONSIVE ADJUSTMENTS (menu.css integration)
+|--------------------------------------------------------------------------
+*/
+@media (max-width: 992px) {
+  /* On medium/small screens, center the links when collapsed */
+  .book-navbar .navbar-collapse {
+      text-align: center;
+  }
+  .book-navbar .navbar-nav {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .masthead_navbar_wrapper {
+    height: 150px;
+  }
+
+  .book-navbar .navbar-brand img {
+    max-height: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .masthead_navbar_wrapper {
+    height: 120px;
+  }
+
+  .book-navbar .navbar-brand img {
+    max-height: 80px;
+  }
+
+  .book-navbar .btn-sm {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+
+
+/*
+|--------------------------------------------------------------------------
+| FILTER SIDEBAR STYLING
+|--------------------------------------------------------------------------
+*/
+.book-filter-sidebar {
+    background-color: var(--color-background-paper);
+    border: 1px solid #dcdcdc;
+}
+
+/* Ensure form elements look clean and use brand focus color */
+.book-filter-sidebar .form-control,
+.book-filter-sidebar .form-select {
+    border-color: #bdbdbd;
+    box-shadow: none !important;
+}
+
+.book-filter-sidebar .form-control:focus,
+.book-filter-sidebar .form-select:focus {
+    border-color: var(--color-secondary); /* Highlight focus with Muted Gold */
+    box-shadow: 0 0 0 0.25rem rgba(200, 155, 55, 0.25); /* Subtle Gold glow */
+}
+
+/* --- Reset Button Styling (btn-outline-secondary hover fix) --- */
+/* The Reset button needs a custom hover effect to match your menu links */
+.book-filter-sidebar .btn-outline-secondary {
+    color: var(--color-text-dark); /* Dark text color */
+    border-color: #6c757d; /* Standard secondary color */
+    transition: all 0.2s;
+}
+
+/* Apply Muted Gold hover effect to the Reset button */
+.book-filter-sidebar .btn-outline-secondary:hover {
+    color: var(--color-primary); /* Change text to Forest Green */
+    background-color: #e9ecef; /* Slight gray background */
+    border-color: var(--color-primary); /* Change border to Forest Green */
+    box-shadow: none;
+}
+
+/*
+|--------------------------------------------------------------------------
+| TEMPLATE/LEFTOVER STYLES (Retained from your original app.css)
+|--------------------------------------------------------------------------
+*/
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -33,10 +293,6 @@
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
-}
-
-.card {
-  padding: 2em;
 }
 
 .read-the-docs {

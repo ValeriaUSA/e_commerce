@@ -12,50 +12,53 @@ export default function ProductCard({ product }) {
   // Check if the product is in the cart
   const isInCart = cartItems.some(item => item.productId === product.productId);
 
-    
+
   // console.log("🐞 Debugging:", product.title, "isInCart:", isInCart);
 
 
 
-console.log("Product:", product.title, "isInCart:", isInCart);
+  console.log("Product:", product.title, "isInCart:", isInCart);
 
   return (
-    <div className="product-card border rounded-lg p-4 shadow-md hover:shadow-lg transition relative">
+    <div className="card h-100 w-100 product-card-custom shadow-sm">
       {/* Cart icon if in cart */}
       {isInCart && (
-        <div className="absolute top-2 right-2 text-2xl text-green-600">
-          <BsCartCheckFill title="In Cart" />
+        <div className="position-absolute top-0 end-0 p-2 text-primary fs-4">
+          <BsCartCheckFill title="Already in your Cart" />
         </div>
       )}
+      <div className="product-image-container">
+        <img
+          src={product.imgurl}
+          alt={product.title}
+          className="card-img-top book-cover-img"
+        />
+      </div>
+      <div className="card-body d-flex flex-column">
+        <h2>{product.productId}</h2> 
+        <h5 className="card-title fw-bold literary-heading">{product.title}</h5>
+        <p className="card-text text-muted small mb-1">Author: {product.author}</p>
+        <p className="card-text text-muted small mb-2">Genre: {product.category_name}</p>
 
-      <img
-        src={product.imgurl}
-        alt={product.title}
-        className="w-full h-48 object-cover mb-4 rounded"
-      />
-
-      <h2 className="text-lg font-bold mb-2">{product.productId}</h2>
-      <h2 className="text-lg font-bold mb-2">{product.title}</h2>
-      <p className="text-sm text-gray-600 mb-1">Author: {product.author}</p>
-      <p className="text-sm text-gray-600 mb-1">Category: {product.category_name}</p>
-
-      <p className="text-sm text-yellow-500 mb-1">
-        {product.stars} ({product.reviews} reviews)
-      </p>
-
-      <p className="text-lg font-semibold mb-2">EUR {price.toFixed(2)}</p>
-
-      {isBestseller && (
-        <span className="text-red-500 font-bold">Bestseller</span>
-      )}
-
-      {product.publisheddate && (
-        <p className="text-xs text-gray-400 mt-2">
-          Published: {new Date(product.publisheddate).toLocaleDateString()}
+        <div className="d-flex justify-content-between align-items-center mb-3 mt-auto">
+          <p className="h4 fw-bold text-success mb-0">EUR {price.toFixed(2)}</p>
+          {isBestseller && (
+            <span className="badge bg-warning text-dark">Bestseller</span>
+          )}
+        </div>
+        <p className="small text-warning mb-2">
+          {product.stars} ({product.reviews} reviews)
         </p>
-      )}
 
-      <AddToCartButton product={product} />
+
+        {product.publisheddate && (
+          <p className="card-text text-muted mt-1" style={{ fontSize: '0.75rem' }}>
+            Published: {new Date(product.publisheddate).toLocaleDateString()}
+          </p>
+        )}
+
+        <AddToCartButton product={product} className="btn-primary w-100 book-btn-primary" />
+      </div>
     </div>
   );
 }

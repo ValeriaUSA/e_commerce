@@ -1,15 +1,17 @@
-import express from 'express'
 import 'dotenv/config'
+import express from 'express'
+import cors from 'cors'
+import helmet from 'helmet'
+import connection from './config/db.config.js';
 import login from './routes/user.route.js'
 import register from './routes/user.route.js'
 import productRouts from './routes/product.rout.js'
 import cartRouts from './routes/cart.rout.js'
 import adminRouts from './routes/admin.rout.js'
-import cors from 'cors'
 
 
-// 
 const app = express()
+app.use(helmet());
 app.use(express.json())
 
 app.use(cors({

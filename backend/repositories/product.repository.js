@@ -20,54 +20,54 @@ import { v4 as uuidv4 } from 'uuid'; //to creat product Ids
 // 2 category_id (PRI, int)
 
 
-// Add a NEW book to the catalogue
-const save = async (product) => {
-  const INSERT = `
-    INSERT INTO products (
-      productId, title, author, imgurl, category_id, stars, reviews, price, isbestseller, publisheddate, itemadded, quantity
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
+// // Add a NEW book to the catalogue
+// const save = async (product) => {
+//   const INSERT = `
+//     INSERT INTO products (
+//       productId, title, author, imgurl, category_id, stars, reviews, price, isbestseller, publisheddate, itemadded, quantity
+//     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+//   `;
 
-  const productId = uuidv4(); // Generate unique 36-char ID
-  // Note: We need to use a single date object for consistency in the binding array
-  const now = new Date(); 
-  // Default quantity to 0 if not provided
-  const quantity = product.quantity != null ? product.quantity : 0;
+//   const productId = uuidv4(); // Generate unique 36-char ID
+//   // Note: We need to use a single date object for consistency in the binding array
+//   const now = new Date(); 
+//   // Default quantity to 0 if not provided
+//   const quantity = product.quantity != null ? product.quantity : 0;
 
-  // Convert incoming publisheddate to MySQL DATE format (YYYY-MM-DD)
-  const publisheddate = product.publisheddate
-    ? new Date(product.publisheddate).toISOString().slice(0, 10)
-    : null;
+//   // Convert incoming publisheddate to MySQL DATE format (YYYY-MM-DD)
+//   const publisheddate = product.publisheddate
+//     ? new Date(product.publisheddate).toISOString().slice(0, 10)
+//     : null;
 
-  try {
-    // The INSERT query has 12 placeholders, ensure 12 values are passed.
-    await connection.query(INSERT, [
-      productId,
-      product.title,
-      product.author,
-      product.imgurl || null,
-      product.category_id || null,
-      product.stars || null,
-      product.reviews || null,
-      product.price || null,
-      product.isbestseller || 0,
-      publisheddate,
-      now, // itemadded is TIMESTAMP
-      quantity
-    ]);
+//   try {
+//     // The INSERT query has 12 placeholders, ensure 12 values are passed.
+//     await connection.query(INSERT, [
+//       productId,
+//       product.title,
+//       product.author,
+//       product.imgurl || null,
+//       product.category_id || null,
+//       product.stars || null,
+//       product.reviews || null,
+//       product.price || null,
+//       product.isbestseller || 0,
+//       publisheddate,
+//       now, // itemadded is TIMESTAMP
+//       quantity
+//     ]);
 
-    return {
-      ...product,
-      productId,
-      itemadded: now,
-      publisheddate,
-      quantity
-    };
-  } catch (error) {
-    console.error('Error saving product:', error);
-    return null;
-  }
-};
+//     return {
+//       ...product,
+//       productId,
+//       itemadded: now,
+//       publisheddate,
+//       quantity
+//     };
+//   } catch (error) {
+//     console.error('Error saving product:', error);
+//     return null;
+//   }
+// };
 
 // READ / FIND ALL:
 // *NO filtering
@@ -159,18 +159,23 @@ const filterProducts = async ({ authors, categories, minPrice, maxPrice, limit, 
 };
 
 
-const category = async () => {
-  let SELECT = `SELECT * FROM categories `
+// const category = async () => {
+//   let SELECT = `SELECT * FROM categories `
 
-  const [result] = await connection.query(SELECT)
-  return result;
+//   const [result] = await connection.query(SELECT)
+//   return result;
+// }
+
+export const category = async () => {
+    const SELECT = `SELECT category_id, categoryName FROM categories ORDER BY categoryName ASC`;
+    const [rows] = await connection.query(SELECT);
+    return rows;
 }
-
 
 export default {
   findAll,
   findById,
-  save,
+  // save,
   filterProducts,
   category,
 }

@@ -7,7 +7,7 @@ const router = express.Router()
 
 router.get("/category", ProductController.getAllCategories)
 router.post("/filter", ProductController.getFilterProducts);
-router.post("/new", ProductController.addProduct)
+// router.post("/new", ProductController.addProduct)
 router.get("/", ProductController.getAllProducts); 
 
 

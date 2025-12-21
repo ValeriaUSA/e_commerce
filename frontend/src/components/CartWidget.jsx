@@ -19,14 +19,11 @@ const CartWidget = ({ toggleCart }) => {
 
     return (
         <button
-            className="cart-widget btn btn-outline-light d-flex align-items-center position-relative p-2 rounded-lg"
+           
+            className="cart-widget btn btn-outline-light d-flex align-items-center position-relative"
             onClick={handleClick}
             aria-label={`Open Cart with ${totalQnty} items`}
-            style={{
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                color: 'white',
-            }}
+        
         >
             <CartBooks
                 style={{ width: '24px', height: '24px', marginRight: '4px' }}

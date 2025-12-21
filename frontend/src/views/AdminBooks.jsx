@@ -464,7 +464,7 @@
 //     );
 // }
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from "../../axios.config.js";
 import { FaSortAlphaDown, FaSortAlphaUp, FaSortNumericDown, FaSortNumericUp } from 'react-icons/fa';
 import { debounce } from "lodash"
@@ -480,18 +480,18 @@ const AdminBooks = () => {
     const [error, setError] = useState('');
     const [totalCount, setTotalCount] = useState(0);
 
-    // Состояние пагинации и сортировки
+    // state for pages and sortinf
     const [page, setPage] = useState(1);
     const [sortField, setSortField] = useState('itemadded');
     const [sortOrder, setSortOrder] = useState('DESC');
 
-    // Состояние фильтров
+    // state for filtering
     const [filters, setFilters] = useState({
         productId: '',
         author: '',
         title: '',
         categoryName: '',
-        isbestseller: '', // Строка, может быть 'true', 'false' или ''
+        isbestseller: '', // 'true', 'false' or ''
         itemadded: '',
     });
 
@@ -513,8 +513,10 @@ const AdminBooks = () => {
         quantity: 0
     })
 
+    const [categories, setCategories] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [editBook, setEditBook] = useState(null);
+
 
     // --- 2. PAGINATION & SORT CALCULATIONS ---
     const limit = DEFAULT_LIMIT;
@@ -635,9 +637,10 @@ const AdminBooks = () => {
             if (editBook) {
                 //UPDATE
                 await axios.put(`/admin/books/${editBook.productId}`, dataToSubmit);
+                
             } else {
                 //ADD NEW
-                await axios.post('/admin/books', dataToSubmit)
+                await axios.post('/admin/books/new', dataToSubmit)
             }
 
             closeModalForm();
@@ -650,7 +653,29 @@ const AdminBooks = () => {
         }
     }
 
-    // --- 4. DATA FETCHING (useEffect) ---
+    // --- DELETE handling ---
+
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure to delete this book from Data Base ?")) return
+
+        try {
+            await axios.delete(`/admin/books/${id}`);
+            setBooks(books.filter((b) => b.productId !== id)) // remove this book from local state for immediate UI update
+        } catch (error) {
+            console.error("[AdminBooks] : Error deleting book:", error);
+            alert(`Error deleting this book: ${error.response?.data?.message || error.message}`);
+        }
+
+    }
+
+    // ---  DATA FETCHING (useEffect) ---
+
+    useEffect(() => {
+        axios.get("/products/category")
+            .then(res => setCategories(res.data))
+            .catch(err => console.error("[FRONT] load categories ERROR:", err));
+    }, []); // get categories mapping for modal form. Get it once
+
 
     const gettingBooks = async () => {
 
@@ -821,8 +846,12 @@ const AdminBooks = () => {
                                 <td>{book.isbestseller ? 'Yes' : 'No'}</td>
                                 <td>{new Date(book.itemadded).toLocaleDateString()}</td>
                                 <td>
-                                    <button className="btn btn-sm btn-info me-2">Edit</button>
-                                    <button className="btn btn-sm btn-danger">Delete</button>
+                                    <button 
+                                    onClick={()=> openModalForm(book)}
+                                    className="btn btn-sm btn-info me-2">Edit</button>
+                                    <button
+                                        onClick={() => handleDelete(book.productId)}
+                                        className="btn btn-sm btn-danger">Delete</button>
                                 </td>
                             </tr>
                         ))}
@@ -884,6 +913,24 @@ const AdminBooks = () => {
                                             placeholder="Author"
                                             className="form-control"
                                         />
+                                    </div>
+                                    {/* Category */}
+                                    <div className="mb-3">
+                                        <label className="form-label">Category</label>
+                                        <select
+                                            name="category_id"
+                                            value={modalData.category_id}
+                                            onChange={handleModalFormChange}
+                                            className="form-select"
+                                        >
+                                            <option value="">Select Category</option>
+
+                                            {categories.map(c => (
+                                                <option key={c.category_id} value={c.category_id}>
+                                                    {c.categoryName}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
                                     {/* Price */}
                                     <div className="mb-3">

@@ -10,7 +10,7 @@ export default function ProductList({ filters, page, setPage }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const limit = 5;
+  const limit = 9;
   const offset = (page - 1) * limit;
 
     // ACONSOLE LOGS DEBUGGING
@@ -43,12 +43,12 @@ export default function ProductList({ filters, page, setPage }) {
         setError("Product list is not available for the moment");
         setLoading(false); // Ensure loading is set to false even on error
         setProducts([]); // Clear products on error
-        console.error("API Request Failed for page:", page, "Error:", err);
+        console.error("API Request Failed for page:", page, "Error:", error);
       });
   }, [filters, page]); // Dependency array: Re-run effect when filters or page changes
 
   return (
-    <div>
+    <div className="container my-5">  {/* BS container for overall padding */}
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
@@ -56,9 +56,14 @@ export default function ProductList({ filters, page, setPage }) {
         <p>No products found matching your criteria.</p>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="row g-4"> {/* gutter/gap */}
         {products.map((product) => (
-          <ProductCard key={product.productId} product={product} />
+           /* 3 books per row on large (lg) screens, 2 on medium (md), 1 on small (xs) */
+          <div 
+          className="col-12 col-md-6 col-lg-4 d-flex flex-column flex-fill" 
+          key={product.productId}>
+          <ProductCard  product={product} />
+          </div>
         ))}
       </div>
 

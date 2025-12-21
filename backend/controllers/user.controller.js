@@ -26,21 +26,29 @@ const userSchema = yup.object().shape({
     .matches(/[A-Z]/, "Password must contain uppercase")
     .matches(/[0-9]/, "Password must contain number")
     .matches(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain special character"),
-  gender: yup.string().nullable().notRequired(),
-  role: yup.string().nullable().notRequired()
+  gender: yup.string().nullable().notRequired()
+  
 });
 
 // Register function
 export const register = async (req, res) => {
   try {
-    // Check if password confirmation corresponds
+  // Check if password confirmation corresponds
     if (req.body.password !== req.body.password_confirmation) {
-      return res.status(400).json({ message: "Passwords do not match" });
+      return res.status(400).json({ 
+        message: "Passwords do not match" });
     }
     // Validate input
     await userSchema.validate(req.body, { abortEarly: false });
-
-    // Hash password
+  // Check if email already exists
+  const existingUser = await userRepository.findByEmail(req.body.email);
+  if (existingUser) {
+    return res.status(400).json({
+      message: "Registration failled",
+      errors: ["Email is already registed"]
+    });
+  }
+  // Hash password
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     // Prepare user object for saving

@@ -23,17 +23,11 @@ const findAll = async () => {
 
 
 // Find user by EMAIL for login and Local storage
-
 const findByEmail = async (email) => {
-
     const SELECT = `SELECT * from users WHERE email= ?`
-
     try {
-
         const user = await connection.query(SELECT, [email]);
-        //debugging 
-        console.log(user[0][0]);
-        return user[0][0] // the row
+        return user[0][0] 
     } catch (error) {
         console.log(error);
         return null

@@ -1,35 +1,37 @@
 import adminRepository from "../repositories/admin.repository.js";
 
+
+// API : GET books with filter/sort/pagination
 export const adminGetBooks = async (req, res) => {
     console.log("[BACK 🐞] /admin/books query params:", req.query);
 
     try {
         // Деструктуризация всех ожидаемых параметров из req.query
-        const { 
-            author, 
-            title, 
-            categoryName, 
-            isbestseller, 
-            productId, 
+        const {
+            author,
+            title,
+            categoryName,
+            isbestseller,
+            productId,
             itemadded,
-            limit,       
-            offset,       
-            sortField, 
-            sortOrder 
+            limit,
+            offset,
+            sortField,
+            sortOrder
         } = req.query;
 
         // Создаем объект filters, включая все параметры
-        const filters = { 
-            author, 
-            title, 
-            categoryName, 
-            isbestseller, 
+        const filters = {
+            author,
+            title,
+            categoryName,
+            isbestseller,
             productId,
             itemadded,
-            limit, 
-            offset, 
-            sortField, 
-            sortOrder 
+            limit,
+            offset,
+            sortField,
+            sortOrder
         };
 
         // 🔑 Вызов функции репозитория, которая возвращает { books, totalCount }
@@ -43,7 +45,7 @@ export const adminGetBooks = async (req, res) => {
     } catch (err) {
         console.error("[BACK 🐞] ERROR in adminGetBooks:", err);
         // Отправка более подробного сообщения об ошибке, если доступно
-        res.status(500).json({ 
+        res.status(500).json({
             message: "Internal server error while fetching books.",
             details: err.message // Полезно для отладки
         });
@@ -110,19 +112,69 @@ export const adminGetBooks = async (req, res) => {
 //   }
 // };
 
-// // ✅ DELETE BOOK
-// export const adminDeleteBook = async (req, res) => {
-//   const { id } = req.params;
-//   try {
-//     const success = await productRepository.remove(id);
-//     if (!success) return res.status(404).json({ message: "Book not found" });
-//     res.json({ message: "Book deleted successfully" });
-//   } catch (error) {
-//     console.error("Error deleting book:", error);
-//     res.status(500).json({ message: "Server error while deleting book" });
-//   }
-// };
+// API: DELETE 1 book
+export const adminDeleteBook = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const success = await adminRepository.deleteById(id);
+        if (!success) return res.status(404).json({ message: "Book not found" });
+        res.json({ message: "Book deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting book:", error);
+        res.status(500).json({ message: "Server error while deleting book" });
+    }
+};
+
+
+// Api: POST New book
+export const adminAddBook = async (req, res) => {
+
+    const productDetails = req.body;
+
+    if (!productDetails.title || !productDetails.author) {
+        return res.status(400).json({ message: "The required field: title or author is missing" })
+    }
+
+
+    try {
+        const newProduct = await adminRepository.save(productDetails)
+
+        if (!newProduct) {
+            return res.status(500).json({ message: "Failed to save this product" });
+
+        }
+        res.status(201).json(newProduct);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error from the server, error 500" })
+    }
+
+}
+
+// Api: Update book
+
+export const adminUpdateBook = async (req, res) => {
+    const { id } = req.params;
+    const bookData = req.body;
+
+    try {
+        const result = await adminRepository.updateBook(id, bookData);
+
+        if (result === 0) {
+            return res.status(404).json({ message: "Book is not found" })
+        }
+        return res.json({ message: "Book was updated" });
+    } catch (error) {
+        console.error("[BACKEND] ERROR adminupdateBook: ", error);
+        res.status(500).json({ message: "Internal Server Error while updating book" })
+    }
+};
+
+
 
 export default {
-   adminGetBooks 
+    adminGetBooks,
+    adminDeleteBook,
+    adminAddBook,
+    adminUpdateBook
 }

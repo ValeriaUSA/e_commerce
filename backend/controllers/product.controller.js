@@ -52,29 +52,29 @@ export const getAllCategories = async (req, res) => {
 
 // POST API to add a new book
 
-export const addProduct = async (req, res) => {
+// export const addProduct = async (req, res) => {
 
-    const productDetails = req.body;
+//     const productDetails = req.body;
 
-    if (!productDetails.title || !productDetails.author) {
-        return res.status(400).json({ message: "The required field: title or author is missing" })
-    }
+//     if (!productDetails.title || !productDetails.author) {
+//         return res.status(400).json({ message: "The required field: title or author is missing" })
+//     }
 
 
-    try {
-        const newProduct = await productRepository.save(productDetails)
+//     try {
+//         const newProduct = await productRepository.save(productDetails)
 
-        if (!newProduct) {
-            return res.status(500).json({ message: "Failed to save this product" });
+//         if (!newProduct) {
+//             return res.status(500).json({ message: "Failed to save this product" });
 
-        }
-        res.status(201).json(newProduct);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error from the server, error 500" })
-    }
+//         }
+//         res.status(201).json(newProduct);
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: "Error from the server, error 500" })
+//     }
 
-}
+// }
 
 
 
@@ -160,7 +160,7 @@ export const getFilterProducts = async (req, res) => {
 export default {
     getAllProducts,
     getProductById,
-    addProduct,
+    // addProduct,
     getFilterProducts,
     getAllCategories,
 };

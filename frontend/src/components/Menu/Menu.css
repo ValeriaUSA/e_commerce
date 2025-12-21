@@ -2,107 +2,188 @@
 /* Masthead wrapper (hero image)        */
 /* ------------------------------------ */
 .masthead_navbar_wrapper {
-  background-image: url('../../images/backboardfinalv1.png'); /* path to hero image */
-  background-size: contain;       
-  background-repeat: no-repeat;   /* do not tile */
-  background-position: center;    /* center the image */
-  /* height: 10%;                   */
-  width: 100%; 
-  display: flex;                  /* flex to center navbar vertically */
+  background-image: url('../../images/backboard5.png'); /* path to hero image */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 100%;
+  display: flex;
   align-items: center;
   justify-content: center;
+  position: fixed; /* fix navbar for scrolling */
+  top: 0;
+  z-index: 1031; /* above other content and Bootstrap dropdowns */
 }
 
 /* ------------------------------------ */
-/* Navbar styling                       */
+/* Navbar styling - Deep Literary Color */
 /* ------------------------------------ */
 .book-navbar {
-  background-color: rgba(21, 226, 134, 0.4); /* semi-transparent overlay */
-  color: white;                         /* text color */
-  position: relative;                    /* relative for overlay stacking */
-  z-index: 1;                            /* ensures navbar content above overlay */
+  background-color: rgba(40, 75, 59, 0.85); /* semi-transparent dark green */
+  color: white;
+  position: relative;
+  z-index: 1020;
 }
 
-/* Navbar container inside overlay */
-.book-navbar .container {
+.book-navbar .container-fluid {
   position: relative;
-  z-index: 2; /* make sure links/buttons are above overlay */
+  z-index: 2;
 }
 
 /* Navbar links and buttons */
 .book-navbar .nav-link,
 .book-navbar .btn {
-  color: rgb(37, 18, 206);
-  transition: color 0.3s;
+  color: #F9F7F5; /* off-white text */
+  transition: color 0.3s, background-color 0.3s, border-color 0.3s;
 }
 
+/* Brand styling */
+.book-navbar .navbar-brand span {
+  font-weight: 600;
+  color: #C89B37; /* muted gold */
+}
+
+/* Hover states */
 .book-navbar .nav-link:hover,
-.book-navbar .btn:hover {
-  color: #ffd700 !important; /* example hover color */
+.book-navbar .nav-link.active,
+.book-navbar .navbar-brand:hover {
+  color: #C89B37 !important;
 }
 
-/* Make dropdown full-width */
+/* Login/logout buttons */
+.book-navbar .btn-outline-light {
+  border-color: #F9F7F5;
+  color: #F9F7F5;
+}
+
+.book-navbar .btn-outline-light:hover {
+  background-color: #C89B37;
+  color: #333333 !important;
+  border-color: #C89B37;
+}
+
+/* Disabled/greeting text */
+.book-navbar .nav-link.disabled.text-light.fw-bold {
+  color: #F9F7F5 !important;
+}
+
+/* Navbar toggler */
+.navbar-toggler {
+  border-color: #F9F7F5;
+  padding-right: 0.75rem;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23f9f7f5' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* ------------------------------------ */
+/* Mega Dropdown Menu Styling            */
+/* ------------------------------------ */
 .dropdown-mega {
   position: absolute;
   left: 0;
   right: 0;
   width: 100%;
   padding: 1rem 0;
-  background-color: rgba(255, 255, 255, 0.95); /* semi-transparent white */
-  display: none; /* hidden by default */
+  background-color: #F9F7F5;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: none;
+  z-index: 1030;
 }
 
-/* Show on hover (optional) */
 .nav-item.dropdown:hover .dropdown-mega {
   display: block;
 }
 
-/* Dropdown items styling */
 .dropdown-mega .dropdown-item {
-  color: #2526ce;
+  color: #333333;
   padding: 0.25rem 1rem;
 }
 
 .dropdown-mega .dropdown-item:hover {
-  background-color: #f0f0f0;
-  color: #ffd700;
+  background-color: #eee;
+  color: #284B3B;
 }
 
-/* Ensure dropdown appears above hero */
-.dropdown-mega {
-  z-index: 2000;
-}
-
-/* Responsive spacing */
 .dropdown-mega .row {
   margin: 0;
 }
 
+/* ------------------------------------ */
+/* Offcanvas / Mobile Sidebar Styling   */
+/* ------------------------------------ */
+.book-offcanvas-header {
+  background-color: #284B3B;
+  color: #F9F7F5;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+}
+
+.book-offcanvas-body {
+  background-color: #F9F7F5;
+}
+
+.book-offcanvas-body .nav-link,
+.book-offcanvas-body .dropdown-item {
+  color: #333333;
+  font-weight: 500;
+}
+
+.book-offcanvas-body .nav-link:hover,
+.book-offcanvas-body .dropdown-item:hover {
+  color: #C89B37;
+  background-color: #eee;
+}
 
 /* ------------------------------------ */
-/* Responsive adjustments               */
+/* Responsive Navbar & Logo Heights     */
 /* ------------------------------------ */
+.book-navbar .navbar-brand img {
+  max-height: 70px; /* desktop */
+}
+
 @media (max-width: 768px) {
-  .masthead_navbar_wrapper {
-    height: 150px; /* reduce height on smaller screens */
-  }
-
-  .book-navbar .navbar-brand img {
-    max-height: 100px; /* smaller logo on mobile */
-  }
+  .masthead_navbar_wrapper { height: 150px; }
+  .book-navbar .navbar-brand img { max-height: 50px; }
 }
 
 @media (max-width: 480px) {
-  .masthead_navbar_wrapper {
-    height: 120px; /* further reduce height */
-  }
-
-  .book-navbar .navbar-brand img {
-    max-height: 80px;
-  }
-
+  .masthead_navbar_wrapper { height: 120px; }
+  .book-navbar .navbar-brand img { max-height: 40px; }
   .book-navbar .btn-sm {
     font-size: 0.7rem;
     padding: 0.25rem 0.5rem;
   }
+}
+
+/* ------------------------------------ */
+/* Responsive Navbar Collapse/Visibility*/
+/* ------------------------------------ */
+@media (min-width: 992px) {
+  .book-navbar .navbar-collapse { display: flex !important; }
+  #offcanvasNavbar { display: none !important; visibility: hidden !important; }
+  .book-navbar .navbar-collapse .nav-link { color: #333333; }
+  .book-navbar .navbar-collapse .nav-link:hover { color: #C89B37 !important; }
+}
+
+@media (max-width: 991.98px) {
+  .book-navbar .navbar-collapse { display: none !important; }
+  .book-navbar .navbar-collapse { text-align: center; }
+  .book-navbar .navbar-nav { margin-left: 0 !important; margin-right: 0 !important; }
+}
+
+/* ------------------------------------ */
+/* Main Content Spacing Below Navbar    */
+/* ------------------------------------ */
+.main-content {
+  padding-top: calc(70px + 20px); /* desktop: logo + extra spacing */
+}
+
+@media (max-width: 768px) {
+  .main-content { padding-top: calc(50px + 16px); } /* tablet */
+}
+
+@media (max-width: 480px) {
+  .main-content { padding-top: calc(40px + 12px); } /* small phones */
 }

@@ -116,7 +116,7 @@ const addProductToCart = async (userId, productId, qnty) => {
 INSERT INTO product_carts (cartId, productId, qnty)
 VALUES (?, ?, ?) 
 ON DUPLICATE KEY UPDATE
-qnty=qnty+VALUE(qnty) 
+qnty=qnty+VALUES(qnty) 
 `;
 
     try {

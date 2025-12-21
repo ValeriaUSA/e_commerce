@@ -13,16 +13,17 @@ export default function Home() {
     setPage(1);
   };
 
- 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold mb-6">Book Catalogue</h1>
-      <Filter onFilterChange={handleFilterChange} />
-      <ProductList
-        filters={filters}
-        page={page}
-        setPage={setPage} 
-      />
-    </div>
+    <main className="main-content">
+      <div className="container mt-5 pt-3">
+        <h1 className="h2 mb-4">Book Catalogue</h1>
+        <Filter onFilterChange={handleFilterChange} />
+        <ProductList
+          filters={filters}
+          page={page}
+          setPage={setPage} 
+        />
+      </div>
+    </main>
   );
 }
