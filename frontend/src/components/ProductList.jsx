@@ -60,7 +60,7 @@ export default function ProductList({ filters, page, setPage }) {
         {products.map((product) => (
            /* 3 books per row on large (lg) screens, 2 on medium (md), 1 on small (xs) */
           <div 
-          className="col-12 col-md-6 col-lg-4 d-flex flex-column flex-fill" 
+          className="col-12 col-md-6 col-lg-4 d-flex" 
           key={product.productId}>
           <ProductCard  product={product} />
           </div>

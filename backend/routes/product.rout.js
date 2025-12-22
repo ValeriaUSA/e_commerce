@@ -11,7 +11,7 @@ router.post("/filter", ProductController.getFilterProducts);
 router.get("/", ProductController.getAllProducts); 
 
 
-router.get("/:id", ProductController.getProductById); // ✅ Должен быть в самом конце, чтобы не перехватывать /books
+router.get("/:id", ProductController.getProductById); // has to be bellow  "/"
 
 export default router;
 

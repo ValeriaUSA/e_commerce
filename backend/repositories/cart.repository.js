@@ -103,11 +103,22 @@ const findOrCreatCart = async (userId) => {
     return activeCartContent
 }
 
+const findUserIdByEmail = async (email) => {
+    const SELECT = `SELECT customerId FROM users WHERE email = ?`;
+    const [rows] = await connection.query(SELECT, [email]);
+
+    if (rows.length === 0) return null;
+    return rows[0].customerId;
+};
+
+
 // 4. Add a book to the cart (OR) update qnty if it was already in the cart
 
-const addProductToCart = async (userId, productId, qnty) => {
+const addProductToCart = async (email, productId, qnty) => {
+    const userId = await findUserIdByEmail(email);
+    if (!userId) throw new Error("User with this email is not found");
 
-    //First, find Id or creat active cart for a user
+    //First, find cart Id or creat active cart for a user
 
     const activeCart = await findOrCreatCart(userId);
     const cartId = activeCart.cartId;
@@ -136,8 +147,9 @@ qnty=qnty+VALUES(qnty)
 
 // 5. Remove a book from a cart
 
-const removeProductFromCart = async (userId, productId) => {
-
+const removeProductFromCart = async (email, productId) => {
+    const userId = await findUserIdByEmail(email);
+    if (!userId) throw new Error("User with this email is not found");
     // First, find the user's cart
     const activeCart = await findCartByUserId(userId);
 
@@ -166,40 +178,89 @@ const removeProductFromCart = async (userId, productId) => {
     }
 };
 
-const updateProductQuantity = async (userId, productId, quantity) => {
+const updateProductQuantity = async (email, productId, quantity) => {
 
+    // 1️⃣ Resolve email → userId FIRST
+    const userId = await findUserIdByEmail(email);
+    if (!userId) {
+        throw new Error("User not found");
+    }
+
+    // 2️⃣ Now it's safe to use userId
     const activeCart = await findCartByUserId(userId);
-
     if (!activeCart) {
         throw new Error("This user does not have any active cart");
     }
 
     const cartId = activeCart.cartId;
 
-    //Get product stock
-
+    // 3️⃣ Check product stock
     const [productRows] = await connection.query(
         "SELECT quantity FROM products WHERE productId = ?",
         [productId]
     );
 
-    if (productRows.length === 0) throw new Error("This product is not found in products");
+    if (productRows.length === 0) {
+        throw new Error("This product is not found in products");
+    }
+
     const availableQnty = productRows[0].quantity;
 
-    if (quantity > availableQnty) throw new Error(`Not enough books in stock! Available: ${availableQnty}`);
-    if (quantity <= 0) {
-        //Remove from cart
-        return await removeProductFromCart(userId, productId);
+    if (quantity > availableQnty) {
+        throw new Error(`Not enough books in stock! Available: ${availableQnty}`);
     }
-    const UPDATE = `
-    UPDATE product_carts
-    SET qnty = ?
-    WHERE cartId = ? AND productId = ?
-`;
-    await connection.query(UPDATE, [quantity, cartId, productId])
-    return await findCartByUserId(userId); //return updated cart
 
-}
+    if (quantity <= 0) {
+        // Remove product if quantity <= 0
+        return await removeProductFromCart(email, productId);
+    }
+
+    const UPDATE = `
+        UPDATE product_carts
+        SET qnty = ?
+        WHERE cartId = ? AND productId = ?
+    `;
+
+    await connection.query(UPDATE, [quantity, cartId, productId]);
+
+    return await findCartByUserId(userId);
+};
+
+// const updateProductQuantity = async (email, productId, quantity) => {
+
+//     const activeCart = await findCartByUserId(userId);
+//     const userId = await findUserIdByEmail(email);
+//     if (!userId) throw new Error("User not found");
+//     if (!activeCart) {
+//         throw new Error("This user does not have any active cart");
+//     }
+
+//     const cartId = activeCart.cartId;
+
+//     //Get product stock
+
+//     const [productRows] = await connection.query(
+//         "SELECT quantity FROM products WHERE productId = ?",
+//         [productId]
+//     );
+
+//     if (productRows.length === 0) throw new Error("This product is not found in products");
+//     const availableQnty = productRows[0].quantity;
+
+//     if (quantity > availableQnty) throw new Error(`Not enough books in stock! Available: ${availableQnty}`);
+//     if (quantity <= 0) {
+//         //Remove from cart
+//         return await removeProductFromCart(userId, productId);
+//     }
+//     const UPDATE = `
+//     UPDATE product_carts
+//     SET qnty = ?
+//     WHERE cartId = ? AND productId = ?
+// `;
+//     await connection.query(UPDATE, [quantity, cartId, productId])
+//     return await findCartByUserId(userId); //return updated cart
+
+// }
 
 const CartContentByUserId = async (userId) => {
     const SELECT = `
@@ -265,7 +326,9 @@ LIMIT 50;
 
 // 6. CLEAR UP the cart
 
-const clearUserCart = async (userId) => {
+const clearUserCart = async (email) => {
+    const userId = await findUserIdByEmail(email);
+    if (!userId) throw new Error("User not found");
 
     if (!userId) throw new Error("Missing userId to continue to clear up cart");
 

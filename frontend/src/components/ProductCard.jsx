@@ -21,6 +21,7 @@ export default function ProductCard({ product }) {
 
   return (
     <div className="card h-100 w-100 product-card-custom shadow-sm">
+ 
       {/* Cart icon if in cart */}
       {isInCart && (
         <div className="position-absolute top-0 end-0 p-2 text-primary fs-4">

@@ -119,7 +119,7 @@
 
 /*
 |--------------------------------------------------------------------------
-| PRODUCT CARD UNIFORMITY FIXES (ProductCard.jsx)
+| PRODUCT CARD  (ProductCard.jsx)
 |--------------------------------------------------------------------------
 */
 
@@ -179,7 +179,9 @@
     margin-top: auto !important; /* Forces the bottom elements to the base */
 }
 
-
+.row > [class*="col-"] {
+  align-items: stretch;
+}
 /*
 |--------------------------------------------------------------------------
 | RESPONSIVE ADJUSTMENTS (menu.css integration)
@@ -298,3 +300,107 @@
 .read-the-docs {
   color: #888;
 }
+
+/* CartOffcanvas Styles */
+.offcanvas {
+  background-color: var(--color-background-paper); /* keeps your theme */
+  color: var(--color-text); /* match navbar/text color */
+  width: 400px; /* make it slightly wider */
+}
+
+.offcanvas-header {
+  border-bottom: 1px solid #ddd;
+  padding: 1rem;
+}
+
+.offcanvas-body {
+  padding: 1rem;
+  max-height: 80vh;
+  overflow-y: auto; /* scroll if too many items */
+}
+
+/* CartProduct Styles */
+.cart-product {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+  gap: 0.75rem;
+  width: 100%;
+}
+/* Ensure title takes full width */
+.cart-product-title {
+  width: 100%;
+  font-size: 0.95rem;
+  line-height: 1.2rem;
+  display: block; 
+}
+/* Target the second row specifically */
+.cart-product > .flex-row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem; /* small space between buttons and input */
+}
+
+.quantity-controls input {
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  padding: 0.25rem;
+  padding: 0.25rem;
+  width: 5ch;          /* width fits ~3 characters */
+  text-align: center;   /* center the value */
+}
+
+/* Chrome, Edge, Safari */
+.quantity-controls input::-webkit-outer-spin-button,
+.quantity-controls input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.quantity-controls input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.quantity-controls button {
+ 
+  width: 5ch;          /* same width as input */
+  height: 2rem;        /* optional, adjust to match input height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0; 
+  background-color: var(--color-primary); /* keeps theme colors */
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+
+.quantity-controls button:hover:not(:disabled) {
+  background-color: var(--color-secondary); 
+}
+
+.quantity-controls button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.cart-product button.text-red-500 {
+  font-size: 1.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+

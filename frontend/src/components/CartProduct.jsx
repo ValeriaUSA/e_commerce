@@ -1,8 +1,9 @@
 import { useCart } from "../contexts/CartContext";
 
+
 const CartProduct = ({ item: product }) => {
- 
-    const { updateQntyInCart, removeProductFromCart } = useCart();
+
+  const { updateQntyInCart, removeProductFromCart } = useCart();
 
   // Handler for typing in the input field 
   const handleQntyUpdate = (event) => {
@@ -19,69 +20,80 @@ const CartProduct = ({ item: product }) => {
   // Decrement quantity - remove if reches 0
   const decrementQnty = () => {
     if (product.quantity > 1) {
-      updateQntyInCart(product.productId  , product.quantity - 1);
-    }else {
-           removeProductFromCart(product.productId);
-    } 
+      updateQntyInCart(product.productId, product.quantity - 1);
+    } else {
+      removeProductFromCart(product.productId);
+    }
   };
 
   // Remove product explicitly witt X button
   const handleRemoveProduct = () => {
     console.log("🐞[CartProduct] Removing product:", product);
-   removeProductFromCart(product.productId);
+    removeProductFromCart(product.productId);
   };
 
+  
   return (
-    <div className="cart-product">
-      {/* Book title */}
-      <span>{product.title}</span>
+    <div className="cart-product flex flex-col gap-2">
 
-      {/* Price */}
-      <span>${Number(product.price).toFixed(2)}</span>
-
-      {/* Quantity controls */}
-     <div className="quantity-controls flex items-center gap-2 w-1/4 justify-center">
-        <button
-          onClick={decrementQnty}
-          aria-label="Decrease quantity"
-          disabled={product.quantity <= 0} // prevent going negative
-          className="px-2 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          -
-        </button>
-
-        <input
-          type="number"
-          min="0"
-          value={product.quantity}
-          onChange={handleQntyUpdate}
-          className="w-12 text-center border rounded"
-        />
-
-        <button
-          onClick={incrementQnty}
-          aria-label="Increase quantity"
-          className="px-2 py-1 border rounded"
-        >
-          +
-        </button>
+      {/* ROW 1: Title (Full Width) */}
+      <div className="cart-product-title font-medium">
+        {product.title}
       </div>
 
-      {/* Subtotal */}
-      <span className="w-1/6 text-right">
-        ${(Number(product.price) * product.quantity).toFixed(2)}
-      </span>
+      {/* ROW 2: Image + Controls + Subtotal */}
+      <div className="flex flex-row items-center gap-3 w-full">
+        {/* Image */}
+        <img
+          src={product.imgurl}
+          alt="product"
+          className="cart-product-img w-20 h-20 object-contain rounded"
+        />
 
-      {/* Remove button */}
-      <button
-        onClick={handleRemoveProduct}
-        aria-label="Remove from your Cart"
-        className="text-red-500 text-xl"
-      >
-        &times;
-      </button>
+        {/* Middle Column: Controls & Remove */}
+        <div className="flex flex-col gap-1 flex-1">
+          <div className="quantity-controls flex items-center">
+            <button onClick={decrementQnty} className="btn-qnty">-</button>
+            <input
+              type="number"
+              min="0"
+              value={product.quantity}
+              onChange={handleQntyUpdate}
+            />
+            <button onClick={incrementQnty} className="btn-qnty">+</button>
+          </div>
+
+          <button onClick={handleRemoveProduct} className="text-red-500 text-xs text-left">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+          </button>
+        </div>
+
+        {/* Right Column: Subtotal */}
+        <div className="text-right font-semibold text-sm self-end">
+          ${(Number(product.price) * product.quantity).toFixed(2)}
+        </div>
+      </div>
     </div>
   );
 };
+
+
+
 
 export default CartProduct;

@@ -1,5 +1,3 @@
-
-// Home.jsx
 import { useState } from "react";
 import Filter from "../components/Filter";
 import ProductList from "../components/ProductList";
