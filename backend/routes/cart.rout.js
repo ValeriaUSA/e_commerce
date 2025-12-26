@@ -7,6 +7,9 @@ const router = express.Router()
 // add a book /update qnty in Cart
 router.post("/add", authenticateJWT, CartController.addToCart);
 
+//merge user's cart with a visitor's cart
+router.post("/merge", authenticateJWT, CartController.mergeCart);
+
 //remove a book
 router.post("/remove", authenticateJWT, CartController.removeFromCart)
 

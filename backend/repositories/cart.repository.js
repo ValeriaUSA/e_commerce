@@ -388,6 +388,66 @@ export const CartContentByUserEmail = async (email) => {
     return { cartId: activeCartId, books: cartContent };
 };
 
+// Merge user and visitor cart TRANSACTION
+const mergeGuestCartIntoUserCart = async (email, guestItems) => {
+  const userId = await findUserIdByEmail(email);
+  if (!userId) throw new Error("User not found");
+
+  const activeCart = await findOrCreatCart(userId);
+  const cartId = activeCart.cartId;
+  const stockIssues = [];
+
+  try {
+    await connection.beginTransaction(); // Start transaction
+
+    for (const item of guestItems) {
+      const { productId, quantity } = item;
+
+      // Check stock
+      const [productRows] = await connection.query(
+        "SELECT quantity FROM products WHERE productId = ?",
+        [productId]
+      );
+      const product = productRows[0];
+      if (!product) continue;
+
+      const available = product.quantity;
+
+      // Get current quantity in cart
+      const [existingRows] = await connection.query(
+        "SELECT qnty FROM product_carts WHERE cartId = ? AND productId = ?",
+        [cartId, productId]
+      );
+      const currentQnty = existingRows[0] ? existingRows[0].qnty : 0;
+
+      const requestedTotal = currentQnty + quantity;
+
+      if (requestedTotal > available) {
+        stockIssues.push({ productId, requested: requestedTotal, available });
+        continue;
+      }
+
+      // Merge
+      await connection.query(
+        `INSERT INTO product_carts (cartId, productId, qnty)
+         VALUES (?, ?, ?)
+         ON DUPLICATE KEY UPDATE qnty = qnty + VALUES(qnty)`,
+        [cartId, productId, quantity]
+      );
+    }
+
+    await connection.commit(); // Commit transaction
+
+    const updatedCart = await CartContentByUserId(userId);
+    return { cart: updatedCart, stockIssues };
+  } catch (err) {
+    await connection.rollback(); // Rollback on error
+    console.error("[mergeGuestCartIntoUserCart] Transaction error:", err);
+    throw err;
+  }
+};
+
+
 export default {
     createCart,
     findCartByUserId,
@@ -397,5 +457,6 @@ export default {
     updateProductQuantity,
     CartContentByUserId,
     CartContentByUserEmail,
-    clearUserCart
+    clearUserCart,
+    mergeGuestCartIntoUserCart
 }

@@ -7,6 +7,7 @@ import GlobalProvider from './contexts/GlobalContext.jsx';
 import { CartProvider } from './contexts/CartContext.jsx';
 import { useState } from 'react';
 import CartOffcanvas from './components/CartOffcanvas.jsx';
+import CartMergeModal from './components/CartMergeModal.jsx';
 
 function App() {
 
@@ -17,7 +18,10 @@ const toggleCart = () => setIsCartOpen(prev => !prev);
         <GlobalProvider>
             <CartProvider>
                 <Menu toggleCart={toggleCart} /> 
-                <CartOffcanvas isOpen={isCartOpen} toggleOffcanvas={toggleCart} /> 
+                <CartOffcanvas 
+                isOpen={isCartOpen} 
+                toggleOffcanvas={toggleCart} /> 
+                <CartMergeModal />
                 <AppRoutes /> 
             </CartProvider>
         </GlobalProvider>
@@ -25,3 +29,4 @@ const toggleCart = () => setIsCartOpen(prev => !prev);
 }
 
 export default App;
+

@@ -144,11 +144,47 @@ export const clearCart = async (req, res) => {
   }
 };
 
+//Merge visitor and user carts
+export const mergeCart = async (req, res) => {
+  try {
+    console.log("[mergeCart] req.user:", req.user);
+    console.log("[mergeCart] req.body.items:", req.body.items);
+
+    const userEmail = req.user?.email;
+    if (!userEmail) {
+      console.error("[mergeCart] No email in JWT payload");
+      return res.status(401).json({ message: "Unauthorized: no email in token" });
+    }
+
+    const visitorItems = req.body.items;
+
+    if (!Array.isArray(visitorItems)) {
+      console.error("[mergeCart] Items not array:", visitorItems);
+      return res.status(400).json({ message: "Items must be an array" });
+    }
+
+    console.log("[mergeCart] Calling mergeGuestCartIntoUserCart...");
+    const result = await cartRepository.mergeGuestCartIntoUserCart(userEmail, visitorItems);
+    console.log("[mergeCart] Merge result:", result);
+
+    res.status(200).json({
+      message: "Visitor cart merged successfully",
+      cart: result.cart,
+      stockIssues: result.stockIssues
+    });
+  } catch (err) {
+    console.error("[mergeCart error]", err);
+    res.status(500).json({ message: "Server error during cart merge", error: err.message });
+  }
+};
+
+
 
 export default {
     addToCart,
     removeFromCart,
     updateCartQuantity,
     getCartByUserEmail,
-    clearCart
+    clearCart,
+    mergeCart
 }

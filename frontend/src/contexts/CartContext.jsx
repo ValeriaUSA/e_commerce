@@ -1,297 +1,274 @@
-import { useContext } from "react";
-import { useEffect } from "react";
-import { createContext } from "react";
-import { useReducer } from "react";
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  useState
+} from "react";
 import { GlobalContext } from "./GlobalContext";
 import axios from "../../axios.config";
 
 // const CartContext = createContext();
 
-// const VISITOR_CART_KEY = "visitor_cart"; //localStorage for visitor persists
-// const USER_CART_KEY = "user_cart"; //  for lof-in user synced w backend
+// const VISITOR_CART_KEY = "visitor_cart";
+// const USER_CART_KEY = "user_cart";
 
-
-
-// // Read/Write local storage
-
+// /* =======================
+//    LOCAL STORAGE HELPERS
+// ======================= */
 // const readLocal = (key) => {
-//     try {
-//         const localContent = localStorage.getItem(key)
-//         return localContent ? JSON.parse(localContent) : []
-//     } catch (error) {
-//         console.error(`[CartContext] Error reading ${key} from localStorage`, error);
-//         return []
-//     }
+//   try {
+//     return JSON.parse(localStorage.getItem(key)) || [];
+//   } catch {
+//     return [];
+//   }
 // };
 
-// const writeLocal = (key, data) => {
-//     try {
-//         localStorage.setItem(key, JSON.stringify(data))
-//     } catch (error) {
-//         console.error(`[CartContext] Error writing ${key} to localStorage`, error);
-//     }
-// }
+// const writeLocal = (key, data) =>
+//   localStorage.setItem(key, JSON.stringify(data));
 
+// const removeLocal = (key) => localStorage.removeItem(key);
 
-// const removeLocal = (key) => {
-//     try {
-//         localStorage.removeItem(key)
-//     } catch (error) {
-//         console.error(`[CartContext] Error removing  ${key} from localStorage`, error);
-//     }
-// }
-
-
-// // REDUCER to manage CART STATE:
-
+// /* =======================
+//    REDUCER
+// ======================= */
 // const cartReducer = (state, action) => {
-//     switch (action.type) {
+//   switch (action.type) {
+//     case "SET_CART":
+//       console.log("[Reducer] SET_CART", action.payload);
+//       return action.payload;
 
-//         case "ADD_BOOK": {
-
-//             const { productId, quantity } = action.payload;
-//             const index = state.findIndex(item => item.productId === productId); // this product already exists in the cart ? "state" here is the current array of cart items
-
-//             if (index > -1) {
-//                 const copy = [...state]; //a copy of the current cart (never mutate state directly !!!)
-//                 copy[index] = { ...copy[index], quantity: copy[index].quantity + quantity }
-
-//                 return copy;
-//             }
-//             //  Case when the book is not yet in cart. Return a new array with all current items + the new one (from the payload)
-//             return [...state, action.payload]
-//         }
-
-//         case "REMOVE_BOOK": {
-//             const productIdToRemove = action.payload.productId; // extract from object
-//             return state.filter(item => item.productId !== productIdToRemove);
-//         }
-//         case "UPDATE_QNTY": {
-//             const { productId, quantity } = action.payload;
-//             if (quantity <= 0) return state.filter(item => item.productId !== productId)
-//             return state.map(item =>
-//                 item.productId === productId ? { ...item, quantity } : item
-//             );
-//         }
-
-//         case "SET_CART": {
-//             return [...action.payload];
-//         }
-
-//         case "CLEAR_CART": {
-//             return [];
-//         }
-//         default:
-//             return state
-//     }
-// }
-
-// //PROVIDER
-
-// export const CartProvider = ({ children }) => {
-//     const { user } = useContext(GlobalContext);
-//     const isLoggedIn = !!user; //!! ensures it’s always a simple boolean, not an object or null.
-
-//     const getCartLocalStorage = isLoggedIn 
-//     ? readLocal(USER_CART_KEY) 
-//     : readLocal(VISITOR_CART_KEY)
-
-//     const [cartItems, dispatch] = useReducer(cartReducer, getCartLocalStorage);
-
-
-//     // VISITOR (not logged) changes cart -> keep changes in VISITOR_CART_KEY
-
-//     useEffect(() => {
-//         if (!isLoggedIn) {
-//             writeLocal(VISITOR_CART_KEY, cartItems)
-//         }
-//     }, [cartItems, isLoggedIn]);
-
-//     // ---Once USER logs IN : load backend cart, persist under USER_CART_KEY, and REMOVE visitor_cart
-
-//     useEffect(() => {
-//         const loadBackendCart = async () => {
-//             if (isLoggedIn && user?.id) {
-//                 try {
-//                     const response = await axios.get(`/cart/me`);
-//                     const backendCart = response.data.cart || { books: [] };
-
-//                     // Map over the books array, not the cart object itself
-//                     const normalizedCart = (backendCart.books || []).map((item) => ({
-//                         ...item,
-//                         quantity: item.qnty ?? item.quantity ?? 1,
-//                     }));
-
-//                     // Update reducer state with normalized cart
-//                     dispatch({ type: "SET_CART", payload: normalizedCart });
-
-//                     // Save synchronized user cart
-//                     localStorage.setItem(USER_CART_KEY, JSON.stringify(normalizedCart));
-
-//                     // Remove visitor cart now that a user is logged in
-//                     localStorage.removeItem(VISITOR_CART_KEY);
-
-//                     console.log("✅ [CartContext] Loaded backend cart and removed visitor_cart:", normalizedCart);
-
-//                 } catch (error) {
-//                     console.error("❌ [CartContext] Error loading backend cart:", error);
-//                     // Keep whatever local cart exists if backend fails
-//                 }
-//             }
+//     case "ADD_BOOK": {
+//       const idx = state.findIndex(
+//         (i) => i.productId === action.payload.productId
+//       );
+//       if (idx !== -1) {
+//         const copy = [...state];
+//         copy[idx] = {
+//           ...copy[idx],
+//           quantity: copy[idx].quantity + action.payload.quantity,
 //         };
-
-//         loadBackendCart();
-//     }, [isLoggedIn, user?.id]);
-
-//     // ---Once USER logs OUT
-//     useEffect(() => {
-//         if (!isLoggedIn) {
-//             // Clear in-memory cart and remove user local storage cart when logged out
-//             dispatch({ type: "CLEAR_CART" });
-//             removeLocal(USER_CART_KEY);
-          
-//             // if visitor_cart to remain after logout, remove the next line.
-//             // removeLocal(VISITOR_CART_KEY);
-
-//         }
-//     }, [isLoggedIn]);
-
-
-//     // ----------------------------
-//     // Always update reducer first (fast UI), then sync with backend if logged in
-//     // ----------------------------
-
-//     const addProductToCart = async (product, quantity = 1) => {
-//         dispatch({ type: "ADD_BOOK", payload: { ...product, quantity } })
-
-//         if (isLoggedIn) {
-//             try {
-//                 await axios.post("/cart/add", {
-//                     // userId: user.id,
-//                     productId: product.id,
-//                     qnty: quantity,
-//                 });
-//                 // Sync local "user_cart" with reduced state
-//                 const newState = readLocal(USER_CART_KEY).length ? readLocal(USER_CART_KEY) : cartItems;
-//                 writeLocal(USER_CART_KEY, newState);
-//             } catch (error) {
-//                 console.error("Error syncing cart with backend : ", error);
-//             }
-//         } else {
-//               // visitor: visitor_cart persisted by effect
-//         }
-//     };
-
-
-
-//     // REMOVE BOOK:
-
-//     const removeProductFromCart = async (productId) => {
-
-//         dispatch({ type: "REMOVE_BOOK", payload: { productId } });
-
-//         if (isLoggedIn) {
-//             try {
-//                 await axios.post("/cart/remove", {
-//                     productId,
-//                     // userId: user.id
-//                 });
-//                 //update local copy
-//                   writeLocal(USER_CART_KEY, readLocal(USER_CART_KEY).filter((it) => it.productId !== productId));
-//             } catch (error) {
-//                 console.error("Error removing book from backend : ", error);
-//             }
-//         }
-//         else {
-//               // visitor: visitor_cart persisted by effect
-//         }
-//     };
-
-
-//     // UPDATE Qnty in the CART:
-
-//     const updateQntyInCart = async (productId, quantity) => {
-//         //Always update local state first
-//         dispatch({ type: "UPDATE_QNTY", payload: { productId, quantity } });
-
-//         if (isLoggedIn) {
-
-//             try {
-//                 await axios.post("/cart/update", {
-//                     // userId: user.id,
-//                     productId,
-//                     quantity
-//                 })
-//                 // update local persisted user cart
-//         writeLocal(USER_CART_KEY, readLocal(USER_CART_KEY)); // rely on effect/local read to be consistent
-
-//             } catch (error) {
-//                 console.error(" [CartContext] Error updating cart quantity in backend : ", error);
-//             }
-//         }else {
-//       // visitor_cart persisted by effect
+//         console.log("[Reducer] ADD_BOOK updated", copy[idx]);
+//         return copy;
+//       }
+//       console.log("[Reducer] ADD_BOOK added", action.payload);
+//       return [...state, action.payload];
 //     }
-//     };
 
-//     // CLEAR UP CART:
-//     const clearCart = async () => {
-//         dispatch({ type: "CLEAR_CART" });
-    
-//         if (isLoggedIn) {
-//           try {
-//             await axios.post("/cart/clear", { userId: user.id });
-//             removeLocal(USER_CART_KEY);
-//           } catch (err) {
-//             console.error("[CartContext] Error clearing cart in backend:", err);
+//     case "UPDATE_QNTY":
+//       if (action.payload.quantity <= 0) {
+//         console.log("[Reducer] UPDATE_QNTY remove", action.payload.productId);
+//         return state.filter((i) => i.productId !== action.payload.productId);
+//       } else {
+//         console.log("[Reducer] UPDATE_QNTY update", action.payload);
+//         return state.map((i) =>
+//           i.productId === action.payload.productId
+//             ? { ...i, quantity: action.payload.quantity }
+//             : i
+//         );
+//       }
+
+//     case "REMOVE_BOOK":
+//       console.log("[Reducer] REMOVE_BOOK", action.payload.productId);
+//       return state.filter((i) => i.productId !== action.payload.productId);
+
+//     case "CLEAR_CART":
+//       console.log("[Reducer] CLEAR_CART");
+//       return [];
+
+//     default:
+//       return state;
+//   }
+// };
+
+// /* =======================
+//    PROVIDER
+// ======================= */
+// export const CartProvider = ({ children }) => {
+//   const { user } = useContext(GlobalContext);
+//   const isLoggedIn = Boolean(user);
+//   const isAdmin = user?.role === "admin";
+
+//   const [cartItems, dispatch] = useReducer(cartReducer, []);
+//   const [visitorCart, setVisitorCart] = useState(readLocal(VISITOR_CART_KEY));
+//   const [showMergeModal, setShowMergeModal] = useState(false);
+//   const [stockIssues, setStockIssues] = useState([]);
+
+//   console.log("[Init] visitorCart:", visitorCart, "isLoggedIn:", isLoggedIn);
+
+//   /* =======================
+//      SYNC CART TO LOCAL STORAGE
+//   ======================= */
+//   useEffect(() => {
+//     if (isAdmin) return;
+//     const key = isLoggedIn ? USER_CART_KEY : VISITOR_CART_KEY;
+//     writeLocal(key, cartItems);
+//     console.log("[Sync] Saved cart to localStorage:", key, cartItems);
+//   }, [cartItems, isLoggedIn, isAdmin]);
+
+//   /* =======================
+//      FETCH BACKEND CART ON LOGIN
+//   ======================= */
+//   useEffect(() => {
+//     if (isLoggedIn && !isAdmin) {
+//       const fetchCart = async () => {
+//         try {
+//           console.log("[Fetch] Fetching backend cart for user...");
+//           const { data } = await axios.get("/cart/me");
+//           console.log("[Fetch] Backend cart fetched:", data.cart.books);
+//           dispatch({ type: "SET_CART", payload: data.cart.books || [] });
+
+//           if (visitorCart.length > 0) {
+//             console.log("[Fetch] Visitor cart exists, showing merge modal");
+//             setShowMergeModal(true);
 //           }
-//         } else {
-//           // visitor
-//           removeLocal(VISITOR_CART_KEY);
+//         } catch (err) {
+//           console.error("[Fetch] Failed to get backend cart", err);
 //         }
 //       };
-    
-
-//     // CART TOTALS calculation:
-//     const calcTotalQnty = () =>
-//         cartItems.reduce((count, item) => count + item.quantity, 0);
-//     const calcTotalPrice = () =>
-//         cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-
-//     return (
-//         <CartContext.Provider
-//             value={{
-//                 cartItems,
-//                 addProductToCart,
-//                 removeProductFromCart,
-//                 updateQntyInCart,
-//                 clearCart,
-//                 calcTotalPrice,
-//                 calcTotalQnty
-//             }}
-//         >
-//             {children}
-
-//         </CartContext.Provider>
-//     )
-// }
-// export const useCart = () => {
-//     const context = useContext(CartContext);
-//     if (!context) {
-//         throw new Error("useCart must be used within a CartProvider");
+//       fetchCart();
+//     } else if (!isLoggedIn) {
+//       // For guest users, load visitor cart
+//       dispatch({ type: "SET_CART", payload: visitorCart });
 //     }
-//     return context;
+//   }, [isLoggedIn, isAdmin]);
+
+//   /* =======================
+//      MERGE HANDLERS
+//   ======================= */
+//  const handleMergeCarts = async () => {
+//   try {
+//     console.log("[Merge] Merging visitor cart into backend...", visitorCart);
+
+//     const { data } = await axios.post("/cart/merge", {
+//       items: visitorCart // must be an array of {productId, quantity, ...}
+//     });
+
+//     console.log("[Merge] Merge response:", data);
+//     dispatch({ type: "SET_CART", payload: data.cart.books });
+
+//     if (data.stockIssues?.length > 0) setStockIssues(data.stockIssues);
+
+//     setVisitorCart([]);
+//     removeLocal(VISITOR_CART_KEY);
+//   } catch (err) {
+//     console.error("[Merge] Merge failed", err);
+//   } finally {
+//     setShowMergeModal(false);
+//   }
 // };
 
+//   const handleKeepUserCart = async () => {
+//     try {
+//       console.log("[Keep] Keeping backend cart, discarding visitor cart");
+//       const { data } = await axios.get("/cart/me");
+//       dispatch({ type: "SET_CART", payload: data.cart.books || [] });
 
+//       setVisitorCart([]);
+//       removeLocal(VISITOR_CART_KEY);
+//     } catch (err) {
+//       console.error("[Keep] Fetch cart failed", err);
+//     } finally {
+//       setShowMergeModal(false);
+//     }
+//   };
 
+//   /* =======================
+//      CART ACTIONS
+//   ======================= */
+//   const addProductToCart = async (product, quantity = 1) => {
+//     if (isAdmin) return;
 
-// import { createContext, useContext, useEffect, useReducer } from "react";
-// import axios from "../../axios.config";
-// import { GlobalContext } from "./GlobalContext";
+//     dispatch({ type: "ADD_BOOK", payload: { ...product, quantity } });
 
-/* =======================
-   CONSTANTS
-======================= */
+//     if (isLoggedIn) {
+//       try {
+//         console.log("[Action] Add product to backend cart", product.productId, quantity);
+//         await axios.post("/cart/add", { productId: product.productId, qnty: quantity });
+//       } catch (err) {
+//         console.error("[Action] Add product failed", err);
+//       }
+//     }
+//   };
+
+//   const updateQntyInCart = async (productId, quantity) => {
+//     dispatch({ type: "UPDATE_QNTY", payload: { productId, quantity } });
+
+//     if (isLoggedIn) {
+//       try {
+//         console.log("[Action] Update quantity in backend", productId, quantity);
+//         await axios.post("/cart/update", { productId, quantity });
+//       } catch (err) {
+//         console.error("[Action] Update quantity failed", err);
+//       }
+//     }
+//   };
+
+//   const removeProductFromCart = async (productId) => {
+//     dispatch({ type: "REMOVE_BOOK", payload: { productId } });
+
+//     if (isLoggedIn) {
+//       try {
+//         console.log("[Action] Remove product from backend", productId);
+//         await axios.post("/cart/remove", { productId });
+//       } catch (err) {
+//         console.error("[Action] Remove product failed", err);
+//       }
+//     }
+//   };
+
+//   const clearCart = async () => {
+//     dispatch({ type: "CLEAR_CART" });
+
+//     if (isLoggedIn) {
+//       try {
+//         console.log("[Action] Clear backend cart");
+//         await axios.post("/cart/clear");
+//       } catch (err) {
+//         console.error("[Action] Clear backend cart failed", err);
+//       }
+//     }
+//   };
+
+//   const calcTotalQnty = () =>
+//     cartItems.reduce((sum, i) => sum + i.quantity, 0);
+
+//   const calcTotalPrice = () =>
+//     cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+//   /* =======================
+//      PROVIDER VALUE
+//   ======================= */
+//   return (
+//     <CartContext.Provider
+//       value={{
+//         cartItems,
+//         addProductToCart,
+//         updateQntyInCart,
+//         removeProductFromCart,
+//         clearCart,
+//         calcTotalQnty,
+//         calcTotalPrice,
+//         showMergeModal,
+//         handleMergeCarts,
+//         handleKeepUserCart,
+//         stockIssues,
+//         visitorCart,
+//       }}
+//     >
+//       {children}
+//     </CartContext.Provider>
+//   );
+// };
+
+// /* =======================
+//    HOOK
+// ======================= */
+// export const useCart = () => {
+//   const ctx = useContext(CartContext);
+//   if (!ctx) throw new Error("useCart must be used inside CartProvider");
+//   return ctx;
+// };
 
 const CartContext = createContext();
 
@@ -301,7 +278,6 @@ const USER_CART_KEY = "user_cart";
 /* =======================
    LOCAL STORAGE HELPERS
 ======================= */
-
 const readLocal = (key) => {
   try {
     return JSON.parse(localStorage.getItem(key)) || [];
@@ -310,54 +286,47 @@ const readLocal = (key) => {
   }
 };
 
-const writeLocal = (key, data) => {
-  localStorage.setItem(key, JSON.stringify(data));
-};
-
-const removeLocal = (key) => {
-  localStorage.removeItem(key);
-};
+const writeLocal = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+const removeLocal = (key) => localStorage.removeItem(key);
 
 /* =======================
    REDUCER
 ======================= */
-
 const cartReducer = (state, action) => {
   switch (action.type) {
-    case "ADD_BOOK": {
-      const { productId, quantity } = action.payload;
-      const index = state.findIndex((i) => i.productId === productId);
+    case "SET_CART":
+      console.log("[Reducer] SET_CART", action.payload);
+      return action.payload;
 
-      if (index !== -1) {
+    case "ADD_BOOK": {
+      const idx = state.findIndex((i) => i.productId === action.payload.productId);
+      if (idx !== -1) {
         const copy = [...state];
-        copy[index] = {
-          ...copy[index],
-          quantity: copy[index].quantity + quantity,
-        };
+        copy[idx] = { ...copy[idx], quantity: copy[idx].quantity + action.payload.quantity };
+        console.log("[Reducer] ADD_BOOK updated", copy[idx]);
         return copy;
       }
-
+      console.log("[Reducer] ADD_BOOK added", action.payload);
       return [...state, action.payload];
     }
 
-    case "REMOVE_BOOK":
-      return state.filter((i) => i.productId !== action.payload.productId);
-
     case "UPDATE_QNTY":
       if (action.payload.quantity <= 0) {
+        console.log("[Reducer] UPDATE_QNTY remove", action.payload.productId);
         return state.filter((i) => i.productId !== action.payload.productId);
+      } else {
+        console.log("[Reducer] UPDATE_QNTY update", action.payload);
+        return state.map((i) =>
+          i.productId === action.payload.productId ? { ...i, quantity: action.payload.quantity } : i
+        );
       }
 
-      return state.map((i) =>
-        i.productId === action.payload.productId
-          ? { ...i, quantity: action.payload.quantity }
-          : i
-      );
-
-    case "SET_CART":
-      return action.payload;
+    case "REMOVE_BOOK":
+      console.log("[Reducer] REMOVE_BOOK", action.payload.productId);
+      return state.filter((i) => i.productId !== action.payload.productId);
 
     case "CLEAR_CART":
+      console.log("[Reducer] CLEAR_CART");
       return [];
 
     default:
@@ -368,87 +337,115 @@ const cartReducer = (state, action) => {
 /* =======================
    PROVIDER
 ======================= */
-
 export const CartProvider = ({ children }) => {
   const { user } = useContext(GlobalContext);
   const isLoggedIn = Boolean(user);
+  const isAdmin = user?.role === "admin";
 
-  /* ---------- INIT STATE ---------- */
+  const [cartItems, dispatch] = useReducer(cartReducer, []);
+  const [visitorCart, setVisitorCart] = useState(readLocal(VISITOR_CART_KEY));
+  const [showMergeModal, setShowMergeModal] = useState(false);
+  const [stockIssues, setStockIssues] = useState([]);
 
-  const initialCart = isLoggedIn
-    ? readLocal(USER_CART_KEY)
-    : readLocal(VISITOR_CART_KEY);
-
-  const [cartItems, dispatch] = useReducer(cartReducer, initialCart);
+  console.log("[Init] visitorCart:", visitorCart, "isLoggedIn:", isLoggedIn);
 
   /* =======================
-     EFFECTS
-  ======================= */
-
-  // Visitor → persist cart locally
+     SYNC CART TO LOCAL STORAGE
+  ======================== */
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (isAdmin) return;
+
+    if (isLoggedIn) {
+      writeLocal(USER_CART_KEY, cartItems);
+      console.log("[Sync] Saved cart to localStorage:", USER_CART_KEY, cartItems);
+    } else {
+      setVisitorCart(cartItems); // sync visitorCart state
       writeLocal(VISITOR_CART_KEY, cartItems);
+      console.log("[Sync] Saved cart to localStorage:", VISITOR_CART_KEY, cartItems);
     }
-  }, [cartItems, isLoggedIn]);
-
-  // User login → load backend cart
-  useEffect(() => {
-    const loadBackendCart = async () => {
-      if (!isLoggedIn) return;
-
-      try {
-        const { data } = await axios.get("/cart/me");
-        const books = data?.cart?.books || [];
-
-        dispatch({ type: "SET_CART", payload: books });
-        writeLocal(USER_CART_KEY, books);
-        removeLocal(VISITOR_CART_KEY);
-      } catch (err) {
-        console.error("[Cart] Failed to load backend cart", err);
-      }
-    };
-
-    loadBackendCart();
-  }, [isLoggedIn]);
-
-  // User logout → clear user cart
-  useEffect(() => {
-    if (!isLoggedIn) {
-      dispatch({ type: "CLEAR_CART" });
-      removeLocal(USER_CART_KEY);
-    }
-  }, [isLoggedIn]);
+  }, [cartItems, isLoggedIn, isAdmin]);
 
   /* =======================
-     ACTIONS (OPTIMISTIC)
-  ======================= */
+     FETCH BACKEND CART ON LOGIN
+  ======================== */
+  useEffect(() => {
+    if (isLoggedIn && !isAdmin) {
+      const fetchCart = async () => {
+        try {
+          console.log("[Fetch] Fetching backend cart for user...");
+          const { data } = await axios.get("/cart/me");
+          const backendBooks = data.cart?.books || [];
+          console.log("[Fetch] Backend cart fetched:", backendBooks);
 
+          dispatch({ type: "SET_CART", payload: backendBooks });
+
+          if (visitorCart.length > 0) {
+            console.log("[Fetch] Visitor cart exists, showing merge modal");
+            setShowMergeModal(true);
+          }
+        } catch (err) {
+          console.error("[Fetch] Failed to get backend cart", err);
+        }
+      };
+      fetchCart();
+    } else if (!isLoggedIn) {
+      // guest user → load visitorCart
+      dispatch({ type: "SET_CART", payload: visitorCart });
+    }
+  }, [isLoggedIn, isAdmin]);
+
+  /* =======================
+     MERGE HANDLERS
+  ======================== */
+  const handleMergeCarts = async () => {
+    try {
+      console.log("[Merge] Merging visitor cart into backend...", visitorCart);
+
+      const { data } = await axios.post("/cart/merge", { items: visitorCart });
+
+      console.log("[Merge] Merge response:", data);
+      dispatch({ type: "SET_CART", payload: data.cart.books });
+
+      if (data.stockIssues?.length > 0) setStockIssues(data.stockIssues);
+
+      setVisitorCart([]);
+      removeLocal(VISITOR_CART_KEY);
+    } catch (err) {
+      console.error("[Merge] Merge failed", err);
+    } finally {
+      setShowMergeModal(false);
+    }
+  };
+
+  const handleKeepUserCart = async () => {
+    try {
+      console.log("[Keep] Keeping backend cart, discarding visitor cart");
+      const { data } = await axios.get("/cart/me");
+      dispatch({ type: "SET_CART", payload: data.cart.books || [] });
+
+      setVisitorCart([]);
+      removeLocal(VISITOR_CART_KEY);
+    } catch (err) {
+      console.error("[Keep] Fetch cart failed", err);
+    } finally {
+      setShowMergeModal(false);
+    }
+  };
+
+  /* =======================
+     CART ACTIONS
+  ======================== */
   const addProductToCart = async (product, quantity = 1) => {
+    if (isAdmin) return;
+
     dispatch({ type: "ADD_BOOK", payload: { ...product, quantity } });
 
     if (isLoggedIn) {
       try {
-        await axios.post("/cart/add", {
-          productId: product.productId,
-          qnty: quantity,
-        });
-        writeLocal(USER_CART_KEY, cartItems);
+        console.log("[Action] Add product to backend cart", product.productId, quantity);
+        await axios.post("/cart/add", { productId: product.productId, qnty: quantity });
       } catch (err) {
-        console.error("[Cart] Add failed", err);
-      }
-    }
-  };
-
-  const removeProductFromCart = async (productId) => {
-    dispatch({ type: "REMOVE_BOOK", payload: { productId } });
-
-    if (isLoggedIn) {
-      try {
-        await axios.post("/cart/remove", { productId });
-        writeLocal(USER_CART_KEY, cartItems);
-      } catch (err) {
-        console.error("[Cart] Remove failed", err);
+        console.error("[Action] Add product failed", err);
       }
     }
   };
@@ -458,10 +455,23 @@ export const CartProvider = ({ children }) => {
 
     if (isLoggedIn) {
       try {
+        console.log("[Action] Update quantity in backend", productId, quantity);
         await axios.post("/cart/update", { productId, quantity });
-        writeLocal(USER_CART_KEY, cartItems);
       } catch (err) {
-        console.error("[Cart] Update failed", err);
+        console.error("[Action] Update quantity failed", err);
+      }
+    }
+  };
+
+  const removeProductFromCart = async (productId) => {
+    dispatch({ type: "REMOVE_BOOK", payload: { productId } });
+
+    if (isLoggedIn) {
+      try {
+        console.log("[Action] Remove product from backend", productId);
+        await axios.post("/cart/remove", { productId });
+      } catch (err) {
+        console.error("[Action] Remove product failed", err);
       }
     }
   };
@@ -471,40 +481,35 @@ export const CartProvider = ({ children }) => {
 
     if (isLoggedIn) {
       try {
+        console.log("[Action] Clear backend cart");
         await axios.post("/cart/clear");
-        removeLocal(USER_CART_KEY);
       } catch (err) {
-        console.error("[Cart] Clear failed", err);
+        console.error("[Action] Clear backend cart failed", err);
       }
-    } else {
-      removeLocal(VISITOR_CART_KEY);
     }
   };
 
-  /* =======================
-     DERIVED DATA
-  ======================= */
-
-  const calcTotalQnty = () =>
-    cartItems.reduce((sum, i) => sum + i.quantity, 0);
-
-  const calcTotalPrice = () =>
-    cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const calcTotalQnty = () => cartItems.reduce((sum, i) => sum + i.quantity, 0);
+  const calcTotalPrice = () => cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   /* =======================
-     CONTEXT VALUE
-  ======================= */
-
+     PROVIDER VALUE
+  ======================== */
   return (
     <CartContext.Provider
       value={{
         cartItems,
         addProductToCart,
-        removeProductFromCart,
         updateQntyInCart,
+        removeProductFromCart,
         clearCart,
         calcTotalQnty,
         calcTotalPrice,
+        showMergeModal,
+        handleMergeCarts,
+        handleKeepUserCart,
+        stockIssues,
+        visitorCart,
       }}
     >
       {children}
@@ -515,7 +520,6 @@ export const CartProvider = ({ children }) => {
 /* =======================
    HOOK
 ======================= */
-
 export const useCart = () => {
   const ctx = useContext(CartContext);
   if (!ctx) throw new Error("useCart must be used inside CartProvider");
