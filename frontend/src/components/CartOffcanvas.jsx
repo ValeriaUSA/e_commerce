@@ -12,7 +12,6 @@ const CartOffcanvas = ({ isOpen, toggleOffcanvas }) => {
                 id='offcanvasRight'
                 aria-labelledby="offcanvasRightLabel"
             >
-
                 <div className="offcanvas-header">
                     <h5 className="offcanvas-title" id="offcanvasRightLabel">Books in your Cart</h5>
                     <button
@@ -25,8 +24,6 @@ const CartOffcanvas = ({ isOpen, toggleOffcanvas }) => {
                 <div className="offcanvas-body">
                     <CartData />
                 </div>
-
-
             </div>
 
 {/* Backdrop renders only when open, and closes the cart on click */}

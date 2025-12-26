@@ -28,19 +28,10 @@ if(cartItems.length ===0) {
 
 return(   <div className="cart-content-full p-2">
 
-            {/* Item List  (Used for desktop/wider views) */}
-            <div className="row fw-bold border-bottom pb-2 mb-2 d-none d-md-flex text-secondary small">
-                <div className="col-md-4">Book</div>
-                <div className="col-md-2 text-end">Price</div>
-                <div className="col-md-3 text-center">Qty</div>
-                <div className="col-md-2 text-end">Subtotal</div>
-                <div className="col-md-1"></div>
-            </div>
-
-            {/* List of Cart Books */}
+                       {/* List of Cart Books */}
             <div className="cart-items-list mb-3" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                 {cartItems.map(item => (
-                    // 🛑 CartItem component handles quantity updates and removal
+                    //  CartItem component handles quantity updates and removal
                     <CartProduct key={item.productId} item={item} />
                 ))}
             </div>

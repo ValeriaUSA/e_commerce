@@ -28,7 +28,6 @@ const CartProduct = ({ item: product }) => {
 
   // Remove product explicitly witt X button
   const handleRemoveProduct = () => {
-    console.log("🐞[CartProduct] Removing product:", product);
     removeProductFromCart(product.productId);
   };
 

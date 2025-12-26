@@ -13,14 +13,9 @@ export default function ProductList({ filters, page, setPage }) {
   const limit = 9;
   const offset = (page - 1) * limit;
 
-    // ACONSOLE LOGS DEBUGGING
-  console.log("ProductList - received page:", page);
-  console.log("ProductList - received setPage:", setPage); // Check if it's a function
 
   useEffect(() => {
 
-      // CONSOLE LOG HERE TO SEE IF USEEFFECT RUNS
-    console.log("ProductList - useEffect triggered for page:", page, "and filters:", filters);
     
     setLoading(true);
     setError(""); // Clear previous errors
