@@ -75,9 +75,7 @@ const CartProduct = ({ item: product }) => {
       {/* ROW 3 — PRICE + STOCK */}
       <div className="cart-row-meta">
         <span className="unit-price">EUR{Number(product.price).toFixed(2)}</span>
-        {maxStock !== null && (
-          <span className="stock-info">In stock: {maxStock}</span>
-        )}
+        <span className="stock-info">Available stock: {product.stock}</span>
       </div>
 
       {/* ROW 4 — SUBTOTAL */}

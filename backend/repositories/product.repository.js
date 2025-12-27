@@ -71,18 +71,40 @@ import { v4 as uuidv4 } from 'uuid'; //to creat product Ids
 
 // READ / FIND ALL:
 // *NO filtering
+// const findAll = async () => {
+//   const SELECT = `SELECT * FROM products`
+//   try {
+//     const resultat = await connection.query(SELECT)
+//     return resultat[0] // array of books
+//   } catch (error) {
+//     console.log(error);
+//     return null
+//   }
+// }
+
 const findAll = async () => {
-  const SELECT = `SELECT * FROM products`
+  const SELECT = `SELECT *, quantity AS stock FROM products`;
   try {
-    const resultat = await connection.query(SELECT)
-    return resultat[0] // array of books
+    const [rows] = await connection.query(SELECT);
+    return rows.map(row => ({
+      productId: row.productId,
+      title: row.title,
+      author: row.author,
+      imgurl: row.imgurl,
+      price: row.price,
+      stock: row.quantity,  // unified stock field
+      category_id: row.category_id,
+      stars: row.stars,
+      reviews: row.reviews,
+      isbestseller: row.isbestseller,
+      publisheddate: row.publisheddate,
+      itemadded: row.itemadded,
+    }));
   } catch (error) {
-    console.log(error);
-    return null
+    console.error(error);
+    return [];
   }
-}
-
-
+};
 
 
 
