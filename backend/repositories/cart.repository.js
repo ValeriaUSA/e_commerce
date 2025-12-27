@@ -226,41 +226,7 @@ const updateProductQuantity = async (email, productId, quantity) => {
     return await findCartByUserId(userId);
 };
 
-// const updateProductQuantity = async (email, productId, quantity) => {
 
-//     const activeCart = await findCartByUserId(userId);
-//     const userId = await findUserIdByEmail(email);
-//     if (!userId) throw new Error("User not found");
-//     if (!activeCart) {
-//         throw new Error("This user does not have any active cart");
-//     }
-
-//     const cartId = activeCart.cartId;
-
-//     //Get product stock
-
-//     const [productRows] = await connection.query(
-//         "SELECT quantity FROM products WHERE productId = ?",
-//         [productId]
-//     );
-
-//     if (productRows.length === 0) throw new Error("This product is not found in products");
-//     const availableQnty = productRows[0].quantity;
-
-//     if (quantity > availableQnty) throw new Error(`Not enough books in stock! Available: ${availableQnty}`);
-//     if (quantity <= 0) {
-//         //Remove from cart
-//         return await removeProductFromCart(userId, productId);
-//     }
-//     const UPDATE = `
-//     UPDATE product_carts
-//     SET qnty = ?
-//     WHERE cartId = ? AND productId = ?
-// `;
-//     await connection.query(UPDATE, [quantity, cartId, productId])
-//     return await findCartByUserId(userId); //return updated cart
-
-// }
 
 const CartContentByUserId = async (userId) => {
     const SELECT = `
@@ -388,7 +354,6 @@ export const CartContentByUserEmail = async (email) => {
     return { cartId: activeCartId, books: cartContent };
 };
 
-// Merge user and visitor cart TRANSACTION
 const mergeGuestCartIntoUserCart = async (email, guestItems) => {
   const userId = await findUserIdByEmail(email);
   if (!userId) throw new Error("User not found");
@@ -398,12 +363,12 @@ const mergeGuestCartIntoUserCart = async (email, guestItems) => {
   const stockIssues = [];
 
   try {
-    await connection.beginTransaction(); // Start transaction
+    await connection.beginTransaction();
 
     for (const item of guestItems) {
-      const { productId, quantity } = item;
+      const { productId, quantity: visitorQuantity } = item;
 
-      // Check stock
+      // 1️⃣ Check stock
       const [productRows] = await connection.query(
         "SELECT quantity FROM products WHERE productId = ?",
         [productId]
@@ -413,40 +378,53 @@ const mergeGuestCartIntoUserCart = async (email, guestItems) => {
 
       const available = product.quantity;
 
-      // Get current quantity in cart
+      // 2️⃣ Get current quantity in user cart
       const [existingRows] = await connection.query(
         "SELECT qnty FROM product_carts WHERE cartId = ? AND productId = ?",
         [cartId, productId]
       );
-      const currentQnty = existingRows[0] ? existingRows[0].qnty : 0;
+      const userQuantity = existingRows[0] ? existingRows[0].qnty : 0;
 
-      const requestedTotal = currentQnty + quantity;
-
-      if (requestedTotal > available) {
-        stockIssues.push({ productId, requested: requestedTotal, available });
-        continue;
+      // 3️⃣ Determine final quantity after merge
+      let finalQuantity = userQuantity + visitorQuantity;
+      if (finalQuantity > available) {
+        stockIssues.push({
+          productId,
+          title: product.title,
+          requested: finalQuantity,
+          available
+        });
+        finalQuantity = available; // cap to stock
       }
 
-      // Merge
-      await connection.query(
-        `INSERT INTO product_carts (cartId, productId, qnty)
-         VALUES (?, ?, ?)
-         ON DUPLICATE KEY UPDATE qnty = qnty + VALUES(qnty)`,
-        [cartId, productId, quantity]
-      );
+      if (userQuantity === 0) {
+        // Item does not exist in user cart yet
+        await connection.query(
+          `INSERT INTO product_carts (cartId, productId, qnty)
+           VALUES (?, ?, ?)`,
+          [cartId, productId, finalQuantity]
+        );
+      } else {
+        // Item already in cart, update quantity
+        await connection.query(
+          `UPDATE product_carts
+           SET qnty = ?
+           WHERE cartId = ? AND productId = ?`,
+          [finalQuantity, cartId, productId]
+        );
+      }
     }
 
-    await connection.commit(); // Commit transaction
+    await connection.commit();
 
     const updatedCart = await CartContentByUserId(userId);
     return { cart: updatedCart, stockIssues };
   } catch (err) {
-    await connection.rollback(); // Rollback on error
+    await connection.rollback();
     console.error("[mergeGuestCartIntoUserCart] Transaction error:", err);
     throw err;
   }
 };
-
 
 export default {
     createCart,

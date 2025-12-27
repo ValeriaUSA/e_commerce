@@ -1,98 +1,91 @@
 import { useCart } from "../contexts/CartContext";
 
-
 const CartProduct = ({ item: product }) => {
-
   const { updateQntyInCart, removeProductFromCart } = useCart();
+  const maxStock = product.stock ?? null;
 
-  // Handler for typing in the input field 
-  const handleQntyUpdate = (event) => {
-    let newQnty = parseInt(event.target.value, 10);
-    if (isNaN(newQnty) || newQnty < 0) newQnty = 0; // prevent negative or invalid
-    updateQntyInCart(product.productId, newQnty);
+  // Handle input changes safely
+  const handleInputChange = (e) => {
+    let value = Number(e.target.value);
+    if (isNaN(value) || value < 1) value = 1;
+    if (maxStock && value > maxStock) value = maxStock;
+    updateQntyInCart(product.productId, value);
   };
 
-  // Increment quantity
-  const incrementQnty = () => {
-    updateQntyInCart(product.productId, product.quantity + 1);
-  };
-
-  // Decrement quantity - remove if reches 0
-  const decrementQnty = () => {
-    if (product.quantity > 1) {
-      updateQntyInCart(product.productId, product.quantity - 1);
-    } else {
-      removeProductFromCart(product.productId);
-    }
-  };
-
-  // Remove product explicitly witt X button
-  const handleRemoveProduct = () => {
-    removeProductFromCart(product.productId);
-  };
-
-  
   return (
-    <div className="cart-product flex flex-col gap-2">
+    <div className="cart-product">
+      {/* ROW 1 — TITLE */}
+      <div className="cart-row-title">{product.title}</div>
 
-      {/* ROW 1: Title (Full Width) */}
-      <div className="cart-product-title font-medium">
-        {product.title}
-      </div>
-
-      {/* ROW 2: Image + Controls + Subtotal */}
-      <div className="flex flex-row items-center gap-3 w-full">
-        {/* Image */}
+      {/* ROW 2 — IMAGE + QNTY + BIN */}
+      <div className="cart-row-main">
         <img
           src={product.imgurl}
-          alt="product"
-          className="cart-product-img w-20 h-20 object-contain rounded"
+          alt="book"
+          className="cart-product-img"
         />
 
-        {/* Middle Column: Controls & Remove */}
-        <div className="flex flex-col gap-1 flex-1">
-          <div className="quantity-controls flex items-center">
-            <button onClick={decrementQnty} className="btn-qnty">-</button>
+        <div className="quantity-controls-wrapper">
+          <div className="quantity-controls">
+            <button
+              onClick={() =>
+                updateQntyInCart(
+                  product.productId,
+                  Math.max(1, product.quantity - 1)
+                )
+              }
+            >
+              -
+            </button>
+
             <input
               type="number"
-              min="0"
+              min="1"
+              max={maxStock ?? undefined}
               value={product.quantity}
-              onChange={handleQntyUpdate}
+              onChange={handleInputChange}
             />
-            <button onClick={incrementQnty} className="btn-qnty">+</button>
-          </div>
 
-          <button onClick={handleRemoveProduct} className="text-red-500 text-xs text-left">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+            <button
+              onClick={() =>
+                updateQntyInCart(
+                  product.productId,
+                  maxStock
+                    ? Math.min(product.quantity + 1, maxStock)
+                    : product.quantity + 1
+                )
+              }
+              disabled={maxStock && product.quantity >= maxStock}
             >
-              <path d="M3 6h18"></path>
-              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-              <line x1="10" y1="11" x2="10" y2="17"></line>
-              <line x1="14" y1="11" x2="14" y2="17"></line>
-            </svg>
-          </button>
-        </div>
+              +
+            </button>
 
-        {/* Right Column: Subtotal */}
-        <div className="text-right font-semibold text-sm self-end">
-          ${(Number(product.price) * product.quantity).toFixed(2)}
+            {/* Single bin button */}
+            <button
+              className="cart-remove-btn"
+              onClick={() => removeProductFromCart(product.productId)}
+              aria-label="Remove product"
+            >
+              🗑
+            </button>
+          </div>
         </div>
+      </div>
+
+      {/* ROW 3 — PRICE + STOCK */}
+      <div className="cart-row-meta">
+        <span className="unit-price">EUR{Number(product.price).toFixed(2)}</span>
+        {maxStock !== null && (
+          <span className="stock-info">In stock: {maxStock}</span>
+        )}
+      </div>
+
+      {/* ROW 4 — SUBTOTAL */}
+      <div className="cart-row-subtotal">
+        Subtotal: ${(product.price * product.quantity).toFixed(2)}
       </div>
     </div>
   );
 };
-
-
-
 
 export default CartProduct;

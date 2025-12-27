@@ -346,6 +346,7 @@ export const CartProvider = ({ children }) => {
   const [visitorCart, setVisitorCart] = useState(readLocal(VISITOR_CART_KEY));
   const [showMergeModal, setShowMergeModal] = useState(false);
   const [stockIssues, setStockIssues] = useState([]);
+  
 
   console.log("[Init] visitorCart:", visitorCart, "isLoggedIn:", isLoggedIn);
 
@@ -397,26 +398,44 @@ export const CartProvider = ({ children }) => {
   /* =======================
      MERGE HANDLERS
   ======================== */
-  const handleMergeCarts = async () => {
-    try {
-      console.log("[Merge] Merging visitor cart into backend...", visitorCart);
+ const handleMergeCarts = async () => {
+  try {
+    console.log("[Merge] Sending visitor cart:", visitorCart);
 
-      const { data } = await axios.post("/cart/merge", { items: visitorCart });
+    const { data } = await axios.post("/cart/merge", {
+      items: visitorCart,
+    });
 
-      console.log("[Merge] Merge response:", data);
-      dispatch({ type: "SET_CART", payload: data.cart.books });
+    console.log("[Merge] Response:", data);
 
-      if (data.stockIssues?.length > 0) setStockIssues(data.stockIssues);
+    // Update cart from backend
+    dispatch({
+      type: "SET_CART",
+      payload: data.cart.books,
+    });
 
-      setVisitorCart([]);
-      removeLocal(VISITOR_CART_KEY);
-    } catch (err) {
-      console.error("[Merge] Merge failed", err);
-    } finally {
+    // Save stock issues for UI
+    const issues = data.stockIssues || [];
+    setStockIssues(issues);
+
+    // Clear visitor cart (merge is done)
+    setVisitorCart([]);
+    removeLocal(VISITOR_CART_KEY);
+
+    // ✅ ONLY close modal if no stock issues
+    if (issues.length === 0) {
       setShowMergeModal(false);
     }
-  };
 
+  } catch (err) {
+    console.error("[Merge] Failed:", err);
+  }
+};
+
+const closeMergeModal = () => {
+  setStockIssues([]);
+  setShowMergeModal(false);
+};
   const handleKeepUserCart = async () => {
     try {
       console.log("[Keep] Keeping backend cart, discarding visitor cart");
@@ -506,6 +525,7 @@ export const CartProvider = ({ children }) => {
         calcTotalQnty,
         calcTotalPrice,
         showMergeModal,
+        closeMergeModal,
         handleMergeCarts,
         handleKeepUserCart,
         stockIssues,
