@@ -6,9 +6,9 @@ import { authorizeRole } from "../middleware/authRole.js";
 const router = express.Router()
 
 router.get("/", AdminController.adminGetBooks); 
-router.delete("/books/:id", authenticateJWT, authorizeRole("ADMIN"), AdminController.adminDeleteBook)
-router.post("/books/new", authenticateJWT, authorizeRole("ADMIN"), AdminController.adminAddBook)
-router.put("/books/:id", authenticateJWT, authorizeRole("ADMIN"), AdminController.adminUpdateBook);
+router.delete("/books/:id", authenticateJWT, authorizeRole("admin"), AdminController.adminDeleteBook)
+router.post("/books/new", authenticateJWT, authorizeRole("admin"), AdminController.adminAddBook)
+router.put("/books/:id", authenticateJWT, authorizeRole("admin"), AdminController.adminUpdateBook);
 
 export default router;
 

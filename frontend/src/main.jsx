@@ -7,7 +7,7 @@ import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
 
-    <BrowserRouter>   {/*Оборачиваем App */}
+    <BrowserRouter>   {/*enveloppe the app */}
       <App />
     </BrowserRouter>
 

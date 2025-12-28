@@ -11,18 +11,20 @@ import CartMergeModal from './components/CartMergeModal.jsx';
 
 function App() {
 
-const [isCartOpen, setIsCartOpen] = useState(false);
-const toggleCart = () => setIsCartOpen(prev => !prev);
+    const [isCartOpen, setIsCartOpen] = useState(false);
+    const toggleCart = () => setIsCartOpen(prev => !prev);
 
- return (
+    return (
         <GlobalProvider>
             <CartProvider>
-                <Menu toggleCart={toggleCart} /> 
-                <CartOffcanvas 
-                isOpen={isCartOpen} 
-                toggleOffcanvas={toggleCart} /> 
+                <Menu toggleCart={toggleCart} />
+                <CartOffcanvas
+                    isOpen={isCartOpen}
+                    toggleOffcanvas={toggleCart} />
                 <CartMergeModal />
-                <AppRoutes /> 
+                <div className="main-content">
+                    <AppRoutes />
+                </div>
             </CartProvider>
         </GlobalProvider>
     );
