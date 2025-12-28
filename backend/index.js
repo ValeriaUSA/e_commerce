@@ -8,6 +8,7 @@ import register from './routes/user.route.js'
 import productRouts from './routes/product.rout.js'
 import cartRouts from './routes/cart.rout.js'
 import adminRouts from './routes/admin.rout.js'
+import orderRoutes from './routes/order.rout.js'
 
 
 const app = express()
@@ -38,6 +39,8 @@ app.use("/admin", adminRouts)
 //cart related routes
 app.use ("/cart", cartRouts)
 
+//checkout to order
+app.use("/orders", orderRoutes);
 const PORT = process.env.PORT || 5555
 
 app.listen(PORT, () => {

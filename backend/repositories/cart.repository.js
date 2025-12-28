@@ -474,5 +474,6 @@ export default {
     CartContentByUserId,
     CartContentByUserEmail,
     clearUserCart,
-    mergeGuestCartIntoUserCart
+    mergeGuestCartIntoUserCart,
+    findUserIdByEmail
 }

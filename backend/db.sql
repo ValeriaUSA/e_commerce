@@ -292,6 +292,31 @@ CREATE TABLE IF NOT EXISTS cart_products (
 
 RENAME TABLE cart_products TO product_carts;
 
+-- ORDERs 
+CREATE TABLE IF NOT EXISTS orders (
+    orderId INT AUTO_INCREMENT PRIMARY KEY,
+    cartId INT NOT NULL,
+    customerId INT NOT NULL,
+    status ENUM('Created','Paid','Cancelled') DEFAULT 'Created',
+    totalPrice DECIMAL(15,2) NOT NULL,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (cartId) REFERENCES carts(cartId),
+    FOREIGN KEY (customerId) REFERENCES users(customerId)
+);
+
+-- ORDER ITEMS
+CREATE TABLE IF NOT EXISTS order_items (
+    orderItemId INT AUTO_INCREMENT PRIMARY KEY,
+    orderId INT NOT NULL,
+    productId VARCHAR(36) NOT NULL,
+    title VARCHAR(250) NOT NULL,
+    price DECIMAL(15,2) NOT NULL,
+    quantity INT NOT NULL,
+    FOREIGN KEY (orderId) REFERENCES orders(orderId)
+);
+
+
+
 ---DEBUGGING
 
 DELETE FROM users;

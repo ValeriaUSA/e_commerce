@@ -9,7 +9,8 @@ const CartData = () => {
         cartItems,
         clearCart,
         calcTotalPrice,
-        calcTotalQnty
+        calcTotalQnty,
+        checkoutCart
     } = useCart();
 
 
@@ -48,7 +49,8 @@ return(   <div className="cart-content-full p-2">
                 {/* Checkout Button */}
                 <button 
                     className="btn btn-primary w-100 mb-2"
-                    onClick={() => alert('Redirect to Checkout...')}
+                    // onClick={() => alert('Redirect to Checkout...')}
+                    onClick={checkoutCart}
                 >
                     Proceed to Checkout
                 </button>

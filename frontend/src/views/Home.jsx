@@ -13,7 +13,7 @@ export default function Home() {
 
   return (
     <main className="main-content">
-      <div className="container mt-5 pt-3">
+      <div className="container pt-3">
         <h1 className="h2 mb-4">Book Catalogue</h1>
         <Filter onFilterChange={handleFilterChange} />
         <ProductList
