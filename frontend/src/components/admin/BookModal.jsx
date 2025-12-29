@@ -44,16 +44,24 @@ const BookModal = ({ book, categories, onClose, onSaved }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setModalData(prev => ({ ...prev, [name]: value }));
+        if (name === "quantity") {
+            //  input, allow only digits
+            let sanitized = value.replace(/\D/g, "");
+            if (sanitized === "") sanitized = "0"; // default 0
+            setModalData(prev => ({ ...prev, [name]: sanitized }));
+        } else {
+            setModalData(prev => ({ ...prev, [name]: value }));
+        }
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+
+            const quantityInt = Math.max(0, parseInt(modalData.quantity, 10) || 0);
             const dataToSubmit = {
                 ...modalData,
                 price: parseFloat(modalData.price),
-                quantity: parseInt(modalData.quantity, 10),
+                quantity: quantityInt,
                 isbestseller: modalData.isbestseller === "true",
             };
 
@@ -109,7 +117,7 @@ const BookModal = ({ book, categories, onClose, onSaved }) => {
                                 </div>
                                 <div className="mb-3">
                                     <label className="form-label">Quantity</label>
-                                    <input type="number" name="quantity" value={modalData.quantity} onChange={handleChange} className="form-control" />
+                                    <input type="number" name="quantity" value={modalData.quantity} onChange={handleChange} className="form-control" min="0" step="1"/>
                                 </div>
                                 <div className="mb-3">
                                     <label className="form-label">Is Bestseller?</label>
@@ -129,7 +137,7 @@ const BookModal = ({ book, categories, onClose, onSaved }) => {
                             </div>
                         </form>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
