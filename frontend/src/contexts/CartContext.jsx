@@ -7,9 +7,9 @@ import {
 } from "react";
 import { GlobalContext } from "./GlobalContext";
 import axios from "../../axios.config";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 
-const router = useRouter();
+
 const CartContext = createContext();
 
 const VISITOR_CART_KEY = "visitor_cart";
@@ -114,6 +114,8 @@ const cartReducer = (state, action) => {
    PROVIDER
 ======================= */
 export const CartProvider = ({ children }) => {
+
+    const navigate = useNavigate();
     const { user } = useContext(GlobalContext);
     const isLoggedIn = Boolean(user);
     const isAdmin = user?.role === "admin";
@@ -156,7 +158,7 @@ export const CartProvider = ({ children }) => {
 
                     const enrichedCart = backendBooks.map(b => ({
                         ...b,
-                       stock: b.stock ?? 0,
+                        stock: b.stock ?? 0,
                     }));
 
 
@@ -175,7 +177,7 @@ export const CartProvider = ({ children }) => {
             // guest user → load visitorCart
             const enrichedVisitorCart = visitorCart.map(b => ({
                 ...b,
-               stock: b.stock ?? 0,
+                stock: b.stock ?? 0,
             }));
             dispatch({ type: "SET_CART", payload: enrichedVisitorCart });
         }
@@ -302,6 +304,13 @@ export const CartProvider = ({ children }) => {
     };
 
     const checkoutCart = async () => {
+
+        if (!isLoggedIn) {
+            console.log("[Checkout] Visitor detected → redirecting to login");
+            navigate("/login", { state: { from: "/" } }); // redirect back after login
+            return;
+        }
+
         if (cartItems.length === 0) {
             alert("Your cart is empty.");
             return;
