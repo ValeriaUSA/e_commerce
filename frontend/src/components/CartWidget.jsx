@@ -31,13 +31,7 @@ const CartWidget = ({ toggleCart }) => {
 
             Cart ({totalQnty > 0 ? totalQnty : 0})
 
-            {/* Optional: Position a badge for visual emphasis
-            {totalQnty > 0 && (
-                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    {totalQnty}
-                    <span className="visually-hidden">items in cart</span>
-                </span>
-            )} */}
+            
         </button>
     )
 }

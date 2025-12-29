@@ -40,7 +40,13 @@ const cartReducer = (state, action) => {
       const idx = state.findIndex((i) => i.productId === action.payload.productId);
       if (idx !== -1) {
         const copy = [...state];
-        copy[idx] = { ...copy[idx], quantity: copy[idx].quantity + action.payload.quantity };
+        copy[idx] = {
+      ...copy[idx],
+      quantity: Math.min(
+        copy[idx].quantity + action.payload.quantity,
+        copy[idx].stock ?? Infinity
+      ),
+    };
         console.log("[Reducer] ADD_BOOK updated", copy[idx]);
         return copy;
       }
@@ -48,17 +54,47 @@ const cartReducer = (state, action) => {
       return [...state, action.payload];
     }
 
-    case "UPDATE_QNTY":
-      if (action.payload.quantity <= 0) {
-        console.log("[Reducer] UPDATE_QNTY remove", action.payload.productId);
-        return state.filter((i) => i.productId !== action.payload.productId);
-      } else {
-        console.log("[Reducer] UPDATE_QNTY update", action.payload);
-        return state.map((i) =>
-          i.productId === action.payload.productId ? { ...i, quantity: action.payload.quantity } : i
-        );
-      }
 
+
+    case "UPDATE_QNTY": {
+  const { productId, quantity } = action.payload;
+
+  console.log("[Reducer] UPDATE_QNTY action received:", {
+    productId,
+    requestedQuantity: quantity,
+  });
+
+  // 🔴 Remove product if quantity <= 0
+  if (quantity <= 0) {
+    console.log(
+      "[Reducer] UPDATE_QNTY → removing product from cart:",
+      productId
+    );
+
+    return state.filter((i) => i.productId !== productId);
+  }
+
+  return state.map((i) => {
+    if (i.productId !== productId) return i;
+
+    const maxStock = i.stock ?? Infinity;
+    const finalQuantity = Math.min(quantity, maxStock);
+
+    console.log("[Reducer] UPDATE_QNTY → updating product:", {
+      productId: i.productId,
+      currentQuantity: i.quantity,
+      requestedQuantity: quantity,
+      availableStock: i.stock,
+      finalQuantity,
+      wasClamped: finalQuantity !== quantity,
+    });
+
+    return {
+      ...i,
+      quantity: finalQuantity,
+    };
+  });
+}
     case "REMOVE_BOOK":
       console.log("[Reducer] REMOVE_BOOK", action.payload.productId);
       return state.filter((i) => i.productId !== action.payload.productId);

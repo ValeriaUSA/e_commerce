@@ -132,44 +132,44 @@
 |--------------------------------------------------------------------------
 */
 
-/* 1. Base Card Styling & Hover Effect */
+/* 1. Product Card Base & Hover */
 .product-card-custom {
-  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  width: 100%;             /* responsive width for grid */
+  min-height: 450px;       /* ensures all cards same height */
   border: 1px solid #e0e0e0;
   background-color: var(--color-background-paper);
-  display: flex;
-  flex-direction: column; /* CRITICAL for content alignment */
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .product-card-custom:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* 2. Fixed Image Container (CRITICAL: Defines the 3:4 book aspect ratio) */
+/* ====================================== */
+/* 2. Image Container (3:4 Aspect Ratio) */
 .product-image-container {
   position: relative;
   width: 100%;
-  /* Creates a 3:4 aspect ratio (Height is 133.33% of the container's width) */
-  padding-bottom: 133.33%; 
+  padding-bottom: 133.33%; /* 3:4 aspect ratio */
   overflow: hidden;
   border-top-left-radius: 0.25rem;
   border-top-right-radius: 0.25rem;
   background-color: #f0f0f0;
-  display: flex; 
+  display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* 3. Image Fit Strategy (Ensures full image is visible, preserving ratio) */
 .book-cover-img {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  /* CRITICAL: Scales the image down to fit completely within the 3:4 container */
-  object-fit: contain; 
+  object-fit: contain;
   transition: transform 0.3s;
 }
 
@@ -177,19 +177,87 @@
   transform: scale(1.05);
 }
 
-/* Ensure the card body correctly pushes content to the bottom */
+/* ====================================== */
+/* 3. Card Body Layout */
 .product-card-custom .card-body {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between; /* button sticks to bottom */
+  padding: 1rem;
 }
 
-.product-card-custom .card-body .mt-auto {
-    margin-top: auto !important; /* Forces the bottom elements to the base */
+.product-card-custom .card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  min-height: 3em; /* reserve space for short/long titles */
 }
 
-.row > [class*="col-"] {
-  align-items: stretch;
+.product-card-custom .card-text {
+  margin-bottom: 0.25rem;
+}
+
+.product-card-custom .mt-auto {
+  margin-top: auto !important;
+}
+
+/* ====================================== */
+/* 4. Add to Cart Button (Green + Gold) */
+.btn-add-cart {
+  width: 100%;
+  font-weight: 600;
+  background-color: #284B3B; /* dark green */
+  color: #C89B37;            /* gold text */
+  border: 1px solid #C89B37;
+  transition: all 0.3s;
+}
+
+.btn-add-cart:hover {
+  background-color: #C89B37;
+  color: #284B3B;
+  border-color: #C89B37;
+}
+
+.btn-add-cart.disabled,
+.btn-add-cart:disabled {
+  background-color: #6c757d; /* grey disabled */
+  color: #f8f9fa;
+  border-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* ====================================== */
+/* 5. Already in Cart Badge */
+.in-cart {
+  font-size: 0.9rem;
+  color: #007bff;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+/* ====================================== */
+/* 6. Responsive Grid Wrapping */
+.products-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem; /* spacing between cards */
+}
+
+.products-grid > .product-card-custom {
+  flex: 1 1 calc(33.333% - 1rem); /* default 3 per row */
+}
+
+@media (max-width: 992px) {
+  .products-grid > .product-card-custom {
+    flex: 1 1 calc(50% - 1rem); /* 2 per row on tablet */
+  }
+}
+
+@media (max-width: 576px) {
+  .products-grid > .product-card-custom {
+    flex: 1 1 100%; /* 1 per row on mobile */
+  }
 }
 /*
 |--------------------------------------------------------------------------
