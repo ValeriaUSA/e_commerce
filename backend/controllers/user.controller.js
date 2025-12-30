@@ -136,41 +136,52 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       { email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '12h' }
     );
 
-    // 🛑 DEBUGGING: Log the ID being used
+    //  DEBUGGING: Log the ID being used
     console.log(`[LOGIN] Determined Customer ID: ${customerId}`);
 
-    let activeCartContent;
-
-    try {
-      //Here fetch CART data
-      activeCartContent = await cartRepository.findOrCreatCart(customerId);
-
-      // 🛑 DEBUGGING: Log the raw result from the repository
-      console.log("[LOGIN] Repository Cart Content:", activeCartContent);
-
-    } catch (cartErr) {
-      // Log the specific cart error to the server console
-      console.error("[LOGIN] CRITICAL CART REPOSITORY ERROR:", cartErr);
-      // Throw it up to the main catch block to return 500
-      throw cartErr;
+    let activeCartContent = null;
+    if (user.role.toUpperCase() !== "ADMIN") {
+      try {
+        activeCartContent = await cartRepository.findOrCreatCart(customerId);
+        console.log("[LOGIN] Repository Cart Content:", activeCartContent);
+      } catch (cartErr) {
+        console.error("[LOGIN] CRITICAL CART REPOSITORY ERROR:", cartErr);
+        throw cartErr;
+      }
     }
+
+    // let activeCartContent;
+
+    // try {
+    //   //Here fetch CART data
+    //   activeCartContent = await cartRepository.findOrCreatCart(customerId);
+
+    //   // 🛑 DEBUGGING: Log the raw result from the repository
+    //   console.log("[LOGIN] Repository Cart Content:", activeCartContent);
+
+    // } catch (cartErr) {
+    //   // Log the specific cart error to the server console
+    //   console.error("[LOGIN] CRITICAL CART REPOSITORY ERROR:", cartErr);
+    //   // Throw it up to the main catch block to return 500
+    //   throw cartErr;
+    // }
 
 
     return res.status(200).json({
       message: "Login successful",
       token,
       user: {
-        id: customerId, // Use the determined ID for the response
+        id: customerId,
         name: user.name,
         email: user.email,
         role: user.role,
         familyname: user.familyname,
         gender: user.gender,
-        cartId: activeCartContent.cartId,
-        cartProducts: activeCartContent.books,
+        cartId: activeCartContent?.cartId || null,
+        cartProducts: activeCartContent?.books || [],
       }
     });
   } catch (err) {

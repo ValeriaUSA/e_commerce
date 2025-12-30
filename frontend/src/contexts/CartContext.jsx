@@ -118,7 +118,7 @@ export const CartProvider = ({ children }) => {
     const navigate = useNavigate();
     const { user } = useContext(GlobalContext);
     const isLoggedIn = Boolean(user);
-    const isAdmin = user?.role === "admin";
+    const isAdmin = user?.role?.toUpperCase() === "ADMIN";
 
     const [cartItems, dispatch] = useReducer(cartReducer, []);
     const [visitorCart, setVisitorCart] = useState(readLocal(VISITOR_CART_KEY));
@@ -147,25 +147,36 @@ export const CartProvider = ({ children }) => {
     /* =======================
        FETCH BACKEND CART ON LOGIN
     ======================== */
+
     useEffect(() => {
+
+        // ADMIN → ignore cart 
+        if (isLoggedIn && isAdmin) {
+            console.log("[Cart] Admin logged in → cart disabled");
+
+            dispatch({ type: "SET_CART", payload: [] });
+            setShowMergeModal(false);
+
+            return;
+        }
+
+        // 👤 USER 
         if (isLoggedIn && !isAdmin) {
             const fetchCart = async () => {
                 try {
-                    console.log("[Fetch] Fetching backend cart for user...");
                     const { data } = await axios.get("/cart/me");
                     const backendBooks = data.cart?.books || [];
-                    console.log("[Fetch] Backend cart fetched:", backendBooks);
 
                     const enrichedCart = backendBooks.map(b => ({
                         ...b,
-                        stock: b.stock ?? 0,
+                        stock: b.quantity ?? 0,
                     }));
-
 
                     dispatch({ type: "SET_CART", payload: enrichedCart });
 
-                    if (visitorCart.length > 0 && !isAdmin) {
-                        console.log("[Fetch] Visitor cart exists, showing merge modal");
+                    //  merge Modal
+                    if (visitorCart.length > 0) {
+                        console.log("[Fetch] Visitor cart exists → show merge modal");
                         setShowMergeModal(true);
                     }
                 } catch (err) {
@@ -173,16 +184,19 @@ export const CartProvider = ({ children }) => {
                 }
             };
             fetchCart();
-        } else if (!isLoggedIn) {
-            // guest user → load visitorCart
+        }
+
+        // VISITOR
+        if (!isLoggedIn) {
             const enrichedVisitorCart = visitorCart.map(b => ({
                 ...b,
-                stock: b.stock ?? 0,
+                stock: b.quantity ?? 0,
             }));
+
             dispatch({ type: "SET_CART", payload: enrichedVisitorCart });
         }
-    }, [isLoggedIn, isAdmin]);
 
+    }, [isLoggedIn, isAdmin]);
 
 
     /* =======================
