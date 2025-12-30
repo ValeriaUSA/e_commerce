@@ -8,6 +8,9 @@ import { CartProvider } from './contexts/CartContext.jsx';
 import { useState } from 'react';
 import CartOffcanvas from './components/CartOffcanvas.jsx';
 import CartMergeModal from './components/CartMergeModal.jsx';
+// Import Toastify
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
 
@@ -25,6 +28,24 @@ function App() {
                 <div className="main-content">
                     <AppRoutes />
                 </div>
+                {/* Toast container : une seule instance dans l'application */}
+                <ToastContainer
+                    
+                    position="top-center"     
+                    autoClose={4000}          
+                    hideProgressBar={false}
+                    newestOnTop={true}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    style={{
+                        width: "400px",      
+                        fontSize: "16px"    
+                    }}
+                />
+        
             </CartProvider>
         </GlobalProvider>
     );
