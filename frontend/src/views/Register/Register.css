@@ -1,0 +1,41 @@
+/* Register Page */
+.register-page {
+  margin-top: 1rem;
+}
+
+/* Card styling */
+.register-card {
+  background-color: var(--color-background-paper);
+  border-radius: 12px;
+}
+
+/* Title */
+.register-card h2 {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Inputs */
+.register-card .form-control,
+.register-card .form-select {
+  border-radius: 6px;
+}
+
+/* Focus style */
+.register-card .form-control:focus,
+.register-card .form-select:focus {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 0.2rem rgba(200, 155, 55, 0.25);
+}
+
+/* Button */
+.register-card .btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.register-card .btn-primary:hover {
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: var(--color-text-dark);
+}

@@ -1,7 +1,7 @@
 
 import { Route, Routes } from "react-router-dom";
 import Home from "../views/Home";
-import Register from "../views/Register";
+import Register from "../views/Register/Register";
 import Login from "../views/Login";
 import BooksAdmin from "../views/BooksAdmin";
 import ProtectedAdmin from "../components/admin/ProtectedAdmin";

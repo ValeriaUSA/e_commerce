@@ -28,11 +28,10 @@ function App() {
                 <div className="main-content">
                     <AppRoutes />
                 </div>
-                {/* Toast container : une seule instance dans l'application */}
                 <ToastContainer
                     
                     position="top-center"     
-                    autoClose={4000}          
+                    autoClose={2000}          
                     hideProgressBar={false}
                     newestOnTop={true}
                     closeOnClick
