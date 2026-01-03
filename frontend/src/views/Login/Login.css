@@ -1,0 +1,39 @@
+/* Login Page */
+.login-page {
+  margin-top: 1rem;
+}
+
+/* Card styling */
+.login-card {
+  background-color: var(--color-background-paper);
+  border-radius: 12px;
+}
+
+/* Title */
+.login-card h2 {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Inputs */
+.login-card .form-control {
+  border-radius: 6px;
+}
+
+/* Focus style */
+.login-card .form-control:focus {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 0.2rem rgba(200, 155, 55, 0.25);
+}
+
+/* Button */
+.login-card .btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.login-card .btn-primary:hover {
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: var(--color-text-dark);
+}
