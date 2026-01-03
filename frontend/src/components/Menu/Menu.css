@@ -1,8 +1,8 @@
-/* ------------------------------------ */
-/* Masthead wrapper (hero image)        */
-/* ------------------------------------ */
+/* =========================
+   MASTHEAD / NAVBAR
+========================= */
 .masthead_navbar_wrapper {
-  background-image: url('../../images/backboard5.png'); /* path to hero image */
+  background-image: url('../../images/backboard5.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -10,16 +10,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  position: fixed; /* fix navbar for scrolling */
+  position: fixed;
   top: 0;
-  z-index: 1031; /* above other content and Bootstrap dropdowns */
+  z-index: 1031;
 }
 
-/* ------------------------------------ */
-/* Navbar styling - Deep Literary Color */
-/* ------------------------------------ */
 .book-navbar {
-  background-color: rgba(40, 75, 59, 0.85); /* semi-transparent dark green */
+  background-color: rgba(40, 75, 59, 0.85);
   color: white;
   position: relative;
   z-index: 1020;
@@ -30,39 +27,38 @@
   z-index: 2;
 }
 
-/* Navbar links and buttons */
+/* -------------------------
+   Links & Buttons
+------------------------- */
 .book-navbar .nav-link,
-.book-navbar .btn {
-  color: #F9F7F5; /* off-white text */
+.book-navbar .btn-outline-light {
+  color: #F9F7F5;
+  border-color: #F9F7F5;
   transition: color 0.3s, background-color 0.3s, border-color 0.3s;
 }
 
-/* Brand styling */
+/* Brand */
 .book-navbar .navbar-brand span {
   font-weight: 600;
-  color: #C89B37; /* muted gold */
+  color: #C89B37;
 }
 
-/* Hover states */
+/* Hover & Active states (desktop) */
 .book-navbar .nav-link:hover,
-.book-navbar .nav-link.active,
-.book-navbar .navbar-brand:hover {
-  color: #C89B37 !important;
-}
-
-/* Login/logout buttons */
-.book-navbar .btn-outline-light {
-  border-color: #F9F7F5;
-  color: #F9F7F5;
-}
-
 .book-navbar .btn-outline-light:hover {
-  background-color: #C89B37;
   color: #333333 !important;
-  border-color: #C89B37;
+  background-color: #C89B37 !important;
+  border-color: #C89B37 !important;
 }
 
-/* Disabled/greeting text */
+.book-navbar .nav-link.active,
+.book-navbar .btn-outline-light.active {
+  background-color: var(--color-primary);
+  color: var(--color-background-paper) !important;
+  border-color: var(--color-primary);
+}
+
+/* Disabled text */
 .book-navbar .nav-link.disabled.text-light.fw-bold {
   color: #F9F7F5 !important;
 }
@@ -70,16 +66,12 @@
 /* Navbar toggler */
 .navbar-toggler {
   border-color: #F9F7F5;
-  padding-right: 0.75rem;
 }
-
 .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23f9f7f5' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
-/* ------------------------------------ */
-/* Mega Dropdown Menu Styling            */
-/* ------------------------------------ */
+/* Mega dropdown (desktop) */
 .dropdown-mega {
   position: absolute;
   left: 0;
@@ -106,84 +98,114 @@
   color: #284B3B;
 }
 
-.dropdown-mega .row {
-  margin: 0;
+/* -------------------------
+   Offcanvas / Mobile menu
+------------------------- */
+
+/* Mobile button style */
+.offcanvas-body .btn-mobile {
+  background-color: transparent;
+  color: #284B3B;
+  border: none;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600; /* Made slightly bolder */
+  transition: all 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
 }
 
-/* ------------------------------------ */
-/* Offcanvas / Mobile Sidebar Styling   */
-/* ------------------------------------ */
-.book-offcanvas-header {
-  background-color: #284B3B;
-  color: #F9F7F5;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 0.5rem 1rem;
+.offcanvas-body .btn-mobile:hover {
+  color: #C89B37;
+  background-color: #F9F7F5;
 }
-
+/* Ensure the mobile menu body can scroll if the list is long */
 .book-offcanvas-body {
+  overflow-y: auto !important;
+  max-height: calc(100vh - 80px); /* Adjust based on your header height */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+}
+
+
+/* FIXED: Dropdown caret logic for React State */
+.dropdown-caret {
+  display: inline-block;
+  transition: transform 0.3s ease-in-out;
+  pointer-events: none; /* Clicks pass through to the button */
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+/* Rotate caret when the React class 'is-open' is present */
+.dropdown-caret.is-open {
+  transform: rotate(180deg);
+  color: #284B3B;
+}
+
+/* Submenu items indentation & visibility */
+.offcanvas-body .collapse.show {
+  display: block; /* Ensures visibility when state is true */
+}
+
+#mobileBooksCollapse .dropdown-item {
+  color: #284B3B;
+  padding: 0.6rem 1rem 0.6rem 2.5rem; /* Deeper indentation for sub-items */
+  text-decoration: none;
+  display: block;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+#mobileBooksCollapse .dropdown-item:hover {
+  color: #284B3B;
   background-color: #F9F7F5;
 }
 
-.book-offcanvas-body .nav-link,
-.book-offcanvas-body .dropdown-item {
-  color: #333333;
+/* General Mobile Nav Links */
+.book-offcanvas-body .nav-link {
+  color: #284B3B !important;
   font-weight: 500;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s;
+  text-decoration: none;
 }
 
-.book-offcanvas-body .nav-link:hover,
-.book-offcanvas-body .dropdown-item:hover {
-  color: #C89B37;
-  background-color: #eee;
+.book-offcanvas-body .nav-link:hover {
+  color: #284B3B !important;
+  background-color: #fff5e0;
 }
-
-/* ------------------------------------ */
-/* Responsive Navbar & Logo Heights     */
-/* ------------------------------------ */
+/* -------------------------
+   Responsive logos & Spacing
+------------------------- */
 .book-navbar .navbar-brand img {
-  max-height: 70px; /* desktop */
+  max-height: 70px;
 }
 
 @media (max-width: 768px) {
-  .masthead_navbar_wrapper { height: 150px; }
+  .masthead_navbar_wrapper { height: 80px; } /* Adjusted from 150px to prevent overlap */
   .book-navbar .navbar-brand img { max-height: 50px; }
 }
 
 @media (max-width: 480px) {
-  .masthead_navbar_wrapper { height: 120px; }
+  .masthead_navbar_wrapper { height: 70px; }
   .book-navbar .navbar-brand img { max-height: 40px; }
-  .book-navbar .btn-sm {
-    font-size: 0.7rem;
-    padding: 0.25rem 0.5rem;
-  }
+  .book-navbar .btn-sm { font-size: 0.7rem; padding: 0.25rem 0.5rem; }
 }
 
-/* ------------------------------------ */
-/* Responsive Navbar Collapse/Visibility*/
-/* ------------------------------------ */
+/* Navbar visibility switches */
 @media (min-width: 992px) {
   .book-navbar .navbar-collapse { display: flex !important; }
-  #offcanvasNavbar { display: none !important; visibility: hidden !important; }
-  .book-navbar .navbar-collapse .nav-link { color: #333333; }
-  .book-navbar .navbar-collapse .nav-link:hover { color: #C89B37 !important; }
+  #offcanvasNavbar { display: none !important; }
 }
 
 @media (max-width: 991.98px) {
   .book-navbar .navbar-collapse { display: none !important; }
-  .book-navbar .navbar-collapse { text-align: center; }
-  .book-navbar .navbar-nav { margin-left: 0 !important; margin-right: 0 !important; }
 }
 
-/* ------------------------------------ */
-/* Main Content Spacing Below Navbar    */
-/* ------------------------------------ */
+/* Main content spacing */
 .main-content {
-  padding-top: calc(70px + 20px); /* desktop: logo + extra spacing */
-}
-
-@media (max-width: 768px) {
-  .main-content { padding-top: calc(50px + 16px); } /* tablet */
-}
-
-@media (max-width: 480px) {
-  .main-content { padding-top: calc(40px + 12px); } /* small phones */
+  padding-top: 100px;
 }
