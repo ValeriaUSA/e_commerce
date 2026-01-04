@@ -44,14 +44,16 @@ const BookModal = ({ book, categories, onClose, onSaved }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+
         if (name === "quantity") {
-            //  input, allow only digits
-            let sanitized = value.replace(/\D/g, "");
-            if (sanitized === "") sanitized = "0"; // default 0
-            setModalData(prev => ({ ...prev, [name]: sanitized }));
-        } else {
-            setModalData(prev => ({ ...prev, [name]: value }));
+            // allow empty string while typing
+            if (/^\d*$/.test(value)) {
+                setModalData(prev => ({ ...prev, quantity: value }));
+            }
+            return;
         }
+
+        setModalData(prev => ({ ...prev, [name]: value }));
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -117,7 +119,7 @@ const BookModal = ({ book, categories, onClose, onSaved }) => {
                                 </div>
                                 <div className="mb-3">
                                     <label className="form-label">Quantity</label>
-                                    <input type="number" name="quantity" value={modalData.quantity} onChange={handleChange} className="form-control" min="0" step="1"/>
+                                    <input type="number" name="quantity" value={modalData.quantity} onChange={handleChange} className="form-control" min="0" step="1" />
                                 </div>
                                 <div className="mb-3">
                                     <label className="form-label">Is Bestseller?</label>
